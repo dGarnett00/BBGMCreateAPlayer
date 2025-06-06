@@ -1,11 +1,11 @@
 <!DOCTYPE html> <!-- This tells the browser that this is an HTML5 document -->
-<html lang="en" > <!-- The language of this page is English -->
+<html lang="en"> <!-- The language of this page is English -->
 <head>
     <meta charset="UTF-8"> <!-- Use the UTF-8 character set for text encoding -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Make the page look good on all devices by setting the viewport width and zoom level -->
     <title>Create a Draft Prospect/roster</title> <!-- The title of the page shown in the browser tab -->
     <link rel="stylesheet" href="style.css"> <!-- Link to the external CSS file for styling -->
-</head> 
+</head>
 <body>
     <header>
         <h1>Create a Draft Prospect/Roster</h1> <!-- Main heading of the page -->
@@ -13,33 +13,21 @@
     <main>
         <section id="newEntrySection" class="card">
             <h2>Player Info</h2>
-            <div id="jsonFormContainer" style="margin-top:1rem;" ></ div >            
-            <button id="saveJsonBtn" class="primary-btn" style="margin-top:1rem;" > Save </ button >
-        </ section >
-    
-        <section id="outputsection" class="card" style="display:none;" >
-            <h2>Saved Json </h2>
-            
-            <pre id="outputJson" class="output"></pre> <!-- Preformatted text area to display the saved JSON -->
-
-            <button id="exportJsonBtn" class=""primary-btn" style="margin-typeof:1rem;">Export Json</button> <!-- Button to export the JSON data -->
+            <div id="jsonFormContainer" style="margin-top:1rem;"></div>
+            <button id="saveJsonBtn" class="primary-btn" style="margin-top:1rem;">Save</button>
         </section>
-        <hr style="margin:2rem 0;" >
+
+        <section id="outputsection" class="card" style="display:none;">
+            <h2>Saved Json</h2>
+            <pre id="outputJson" class="output"></pre> <!-- Preformatted text area to display the saved JSON -->
+            <button id="exportJsonBtn" class="primary-btn" style="margin-top:1rem;">Export Json</button> <!-- Button to export the JSON data -->
+        </section>
+        <hr style="margin:2rem 0;">
         <input type="file" id="jsonInput" accept=".json"> <!-- File input to upload a JSON file -->
+    </main>
+    <footer>        
+        <p>&copy; 2023 Draft Prospect/Roster Creator</p> <!-- Footer with copyright information -->
 
-
-    </ main >
-
-
-
-
-
-
-
-
-
-
-
-
+    </footer>
 </body>
 </html>
