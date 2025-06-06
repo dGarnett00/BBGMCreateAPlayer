@@ -33,3 +33,16 @@ main {
     border: 1.5px solid #2a6fa1;
     transition: border 0.3s, box-shadow 0.3s;
 }
+
+.card:hover {
+    border: 1.5px solid #4fc3f7;
+    box-shadow: 0 16px 64px  rgba(44, 83, 100, 0.28), 0 4px 16px rgba(44, 83, 100, 0.18);
+}
+
+h1, h2 {
+    margin: 0 0 1.2rem 0;
+    color: #4fc3f7;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px #2a6fa1aa;
+}
