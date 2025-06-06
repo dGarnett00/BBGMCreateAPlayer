@@ -1,0 +1,17 @@
+body {
+    margin : 0;
+    font-family: 
+    background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+    color: #e3eafc;
+    min-height: 100vh;
+}
+
+header, footer {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%); 
+    color: #fff;
+    padding: 1.2rem;
+    tect-align: center;
+    letter-spacing: 2px;
+    font-weight: 700
+    box-shadow: 0 2px rgba(44, 83, 100, 0.18);
+}
