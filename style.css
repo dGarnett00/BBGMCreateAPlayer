@@ -60,3 +60,10 @@ background: linear-gradient(90deg, #2a6fa1 0%, #4fc3f7 100%);
     margin-top: 1.2rem;
     letter-spacing: 1px;
 }
+
+.primary-btn:hover {
+    background: linear-gradient(90deg, #4fc3f7 0%, #2a6fa1 100%);
+    box-shadow: 0 4px 24px rgba(44, 83, 100, 0.22);
+    transform: translateY(-2px) scale(1.04);
+}   
+
