@@ -779,12 +779,15 @@ playersTable.innerHTML = `
     <th>Name</th>
     <th>Source</th>
     <th>Actions</th>
-    <th><select id="sourceFilter">
-      <option value="">All</option>
-      <option value="manual">Manual</option>
-      <option value="generated">Generated</option>
-      <option value="uploaded">Uploaded</option>
-    </select></th>
+    <th>
+      <input type="checkbox" id="selectAllPlayers" aria-label="Select all players for batch actions">
+      <select id="sourceFilter" style="margin-left:0.7em;">
+        <option value="">All</option>
+        <option value="manual">Manual</option>
+        <option value="generated">Generated</option>
+        <option value="uploaded">Uploaded</option>
+      </select>
+    </th>
   </tr>
 </thead>
 <tbody></tbody>
@@ -833,6 +836,54 @@ function updatePlayersTable() {
     tbody.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editPlayer(btn.dataset.idx));
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => removePlayer(btn.dataset.idx));
 }
+// --- Select All logic ---
+function syncSelectAllCheckbox() {
+  const allCheckboxes = Array.from(document.querySelectorAll('.batch-select'));
+  const checked = allCheckboxes.filter(cb => cb.checked);
+  const selectAll = document.getElementById('selectAllPlayers');
+  if (allCheckboxes.length === 0) {
+    selectAll.checked = false;
+    selectAll.indeterminate = false;
+    selectAll.disabled = true;
+    return;
+  }
+  selectAll.disabled = false;
+  if (checked.length === 0) {
+    selectAll.checked = false;
+    selectAll.indeterminate = false;
+  } else if (checked.length === allCheckboxes.length) {
+    selectAll.checked = true;
+    selectAll.indeterminate = false;
+  } else {
+    selectAll.checked = false;
+    selectAll.indeterminate = true;
+  }
+}
+
+function handleSelectAllChange() {
+  const selectAll = document.getElementById('selectAllPlayers');
+  const allCheckboxes = document.querySelectorAll('.batch-select');
+  allCheckboxes.forEach(cb => {
+    cb.checked = selectAll.checked;
+  });
+}
+
+// Patch updatePlayersTable to attach checkbox listeners
+const originalUpdatePlayersTable = updatePlayersTable;
+updatePlayersTable = function() {
+  originalUpdatePlayersTable.apply(this, arguments);
+  // Attach listeners to individual checkboxes
+  document.querySelectorAll('.batch-select').forEach(cb => {
+    cb.addEventListener('change', syncSelectAllCheckbox);
+  });
+  // Attach listener to select all
+  const selectAll = document.getElementById('selectAllPlayers');
+  if (selectAll) {
+    selectAll.removeEventListener('change', handleSelectAllChange);
+    selectAll.addEventListener('change', handleSelectAllChange);
+  }
+  syncSelectAllCheckbox();
+};
 function editPlayer(idx) {
     renderJsonForm(players[idx], jsonFormContainer);
     currentEditIdx = idx;

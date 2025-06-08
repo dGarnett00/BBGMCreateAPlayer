@@ -416,4 +416,12 @@ h1, h2 {
   margin-right: 0.7em;
   margin-bottom: 0.5em;
 }
+.players-table th input[type="checkbox"]#selectAllPlayers {
+  vertical-align: middle;
+  margin-right: 0.3em;
+  accent-color: #1976d2;
+  width: 1.1em;
+  height: 1.1em;
+  cursor: pointer;
+}
 
