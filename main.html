@@ -21,10 +21,11 @@
               <span id="bulkGenerateBtnPlaceholder" aria-hidden="true"></span>
             </div>
         </section>
-        <section id="outputSection" class="card">
-            <h2>Saved JSON</h2>
-            <pre id="outputJson" class="output-json"></pre>
-            <button id="exportJsonBtn" class="primary-btn mt-1">Export JSON</button>
+        <section id="outputSection" class="card output-section" style="display:none;">
+            <h2>Output JSON</h2>
+            <div id="totalPlayersDisplay" class="total-players-display" aria-live="polite"></div>
+            <pre id="outputJson" tabindex="0" aria-label="Draft class JSON output"></pre>
+            <button id="exportJsonBtn" class="primary-btn export-btn">Export JSON</button>
         </section>
         <hr class="my-2">
         <label for="jsonInput" class="file-label">Import JSON File:</label>

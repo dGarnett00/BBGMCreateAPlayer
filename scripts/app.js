@@ -149,6 +149,7 @@ saveBtn.addEventListener('click', () => {
     };
     outputJson.textContent = JSON.stringify(outputObj, null, 2);
     outputSection.style.display = 'block';
+    updateTotalPlayersDisplay(allPlayers);
     currentPlayer = structuredClone(defaultPlayer);
     renderJsonForm(currentPlayer, jsonFormContainer);
 });
@@ -243,6 +244,7 @@ jsonInput.addEventListener('change', (e) => {
                 };
                 outputJson.textContent = JSON.stringify(outputObj, null, 2);
                 outputSection.style.display = 'block';
+                updateTotalPlayersDisplay(allPlayers);
             }
         });
     }
@@ -264,6 +266,7 @@ updateBtn.addEventListener('click', () => {
         uploadedPlayers[idx] = updated;
         uploadedJsonObj.players[idx] = updated;
         alert('Player updated!');
+        updateTotalPlayersDisplay(uploadedPlayers);
     }
 });
 
@@ -284,6 +287,7 @@ exportBtn.addEventListener('click', () => {
     }
     jsonHandler.updateJson(exportObj);
     jsonHandler.exportJson();
+    updateTotalPlayersDisplay(exportObj.players || []);
 });
 
 // Set imgURL dropdown options for the form (applies to all player forms, including edit)
@@ -654,6 +658,7 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
     };
     outputJson.textContent = JSON.stringify(outputObj, null, 2);
     outputSection.style.display = 'block';
+    updateTotalPlayersDisplay(generatedPlayers);
     alert('Random player generated and added to output! You can now edit and save.');
 });
 
@@ -713,9 +718,15 @@ async function generateAndAppendPlayers(count) {
     };
     outputJson.textContent = JSON.stringify(outputObj, null, 2);
     outputSection.style.display = 'block';
+    updateTotalPlayersDisplay(generatedPlayers);
     alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output! You can now edit and save.`);
 }
 
 generate5Btn.addEventListener('click', () => generateAndAppendPlayers(5));
 generate20Btn.addEventListener('click', () => generateAndAppendPlayers(20));
 generate40Btn.addEventListener('click', () => generateAndAppendPlayers(40));
+
+const totalPlayersDisplay = document.getElementById('totalPlayersDisplay');
+function updateTotalPlayersDisplay(playersArr) {
+    totalPlayersDisplay.textContent = `Total players in output: ${playersArr.length}`;
+}
