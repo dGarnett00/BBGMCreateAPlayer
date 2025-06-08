@@ -627,17 +627,32 @@ function generateRandomPlayerFromDrafts(players) {
     return base;
 }
 
+let generatedPlayers = [];
+
 generateRandomPlayerBtn.addEventListener('click', async () => {
-    const allPlayers = await getAllDraftPlayers();
-    if (allPlayers.length < 10) {
+    // Only fetch all draft players once, then reuse
+    if (!window._allDraftPlayersCache) {
+        window._allDraftPlayersCache = await getAllDraftPlayers();
+    }
+    const allDraftPlayers = window._allDraftPlayersCache;
+    if (allDraftPlayers.length < 10) {
         alert('Not enough players in draft files to generate a random player.');
         return;
     }
-    const newPlayer = generateRandomPlayerFromDrafts(allPlayers);
+    const newPlayer = generateRandomPlayerFromDrafts(allDraftPlayers);
     if (!newPlayer) {
         alert('Failed to generate player.');
         return;
     }
     renderJsonForm(newPlayer, jsonFormContainer);
-    alert('Random player generated! You can now edit and save.');
+    // Add the generated player to the output JSON (append to list)
+    generatedPlayers.push(newPlayer);
+    const outputObj = {
+        version: TOP_LEVEL_VERSION,
+        startingSeason: topLevelStartingSeason,
+        players: generatedPlayers
+    };
+    outputJson.textContent = JSON.stringify(outputObj, null, 2);
+    outputSection.style.display = 'block';
+    alert('Random player generated and added to output! You can now edit and save.');
 });
