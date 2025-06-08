@@ -22,10 +22,14 @@
             </div>
         </section>
         <section id="outputSection" class="card output-section" style="display:none;">
-            <h2>Output JSON</h2>
+            <h2>Draft Class</h2>
             <div id="totalPlayersDisplay" class="total-players-display" aria-live="polite"></div>
-            <pre id="outputJson" tabindex="0" aria-label="Draft class JSON output"></pre>
+            <div id="playerTableContainer"></div>
             <button id="exportJsonBtn" class="primary-btn export-btn">Export JSON</button>
+            <details style="margin-top:1em;">
+                <summary>Show Raw JSON</summary>
+                <pre id="outputJson" tabindex="0" aria-label="Draft class JSON output"></pre>
+            </details>
         </section>
         <hr class="my-2">
         <label for="jsonInput" class="file-label">Import JSON File:</label>
