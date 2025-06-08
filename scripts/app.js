@@ -751,3 +751,60 @@ const totalPlayersDisplay = document.getElementById('totalPlayersDisplay');
 function updateTotalPlayersDisplay(playersArr) {
     totalPlayersDisplay.textContent = `Total players in output: ${playersArr.length}`;
 }
+
+let players = [];
+let undoStack = [];
+let redoStack = [];
+
+function addPlayer(player, source) {
+    // Prevent duplicates by pid or (firstName+lastName)
+    if (players.some(p => p.pid === player.pid || (p.firstName === player.firstName && p.lastName === player.lastName))) {
+        alert('Duplicate player detected. Player not added.');
+        return false;
+    }
+    player.source = source;
+    players.push(player);
+    pushUndoState();
+    updatePlayersTable();
+    updateOutputJson();
+    updateTotalPlayersDisplay(players);
+    updateSourceStats();
+    return true;
+}
+
+const playersTable = document.createElement('table');
+playersTable.className = 'players-table';
+playersTable.innerHTML = `
+<thead>
+  <tr>
+    <th>#</th>
+    <th>Name</th>
+    <th>Source</th>
+    <th>Actions</th>
+    <th><select id="sourceFilter">
+      <option value="">All</option>
+      <option value="manual">Manual</option>
+      <option value="generated">Generated</option>
+      <option value="uploaded">Uploaded</option>
+    </select></th>
+  </tr>
+</thead>
+<tbody></tbody>
+`;
+document.querySelector('main').insertBefore(playersTable, document.getElementById('outputSection'));
+
+const statsBar = document.createElement('div');
+statsBar.id = 'sourceStats';
+statsBar.style.margin = '1em 0';
+document.querySelector('main').insertBefore(statsBar, playersTable);
+
+function updateSourceStats() {
+    const manual = players.filter(p => p.source === 'manual').length;
+    const generated = players.filter(p => p.source === 'generated').length;
+    const uploaded = players.filter(p => p.source === 'uploaded').length;
+    statsBar.innerHTML = `
+      <span style="color:#4caf50;">Manual: ${manual}</span> | 
+      <span style="color:#2196f3;">Generated: ${generated}</span> | 
+      <span style="color:#ff9800;">Uploaded: ${uploaded}</span>
+    `;
+}
