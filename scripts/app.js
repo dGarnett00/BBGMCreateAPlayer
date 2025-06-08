@@ -887,3 +887,39 @@ document.getElementById('batchExportBtn').onclick = () => {
         jsonHandler.exportJson();
     }
 };
+
+function pushUndoState() {
+    undoStack.push(JSON.stringify(players));
+    redoStack = [];
+}
+function undo() {
+    if (undoStack.length > 1) {
+        redoStack.push(undoStack.pop());
+        players = JSON.parse(undoStack[undoStack.length - 1]);
+        updatePlayersTable();
+        updateOutputJson();
+        updateTotalPlayersDisplay(players);
+        updateSourceStats();
+    }
+}
+function redo() {
+    if (redoStack.length) {
+        const state = redoStack.pop();
+        undoStack.push(state);
+        players = JSON.parse(state);
+        updatePlayersTable();
+        updateOutputJson();
+        updateTotalPlayersDisplay(players);
+        updateSourceStats();
+    }
+}
+const undoBtn = document.createElement('button');
+undoBtn.textContent = 'Undo';
+undoBtn.className = 'primary-btn';
+undoBtn.onclick = undo;
+const redoBtn = document.createElement('button');
+redoBtn.textContent = 'Redo';
+redoBtn.className = 'primary-btn';
+redoBtn.onclick = redo;
+batchBar.appendChild(undoBtn);
+batchBar.appendChild(redoBtn);
