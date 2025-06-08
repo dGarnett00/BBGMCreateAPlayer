@@ -859,22 +859,35 @@ if (document.getElementById('sourceStats')) {
 function updatePlayersTable() {
     const tbody = playersTable.querySelector('tbody');
     tbody.innerHTML = '';
-    players
-      .map((p, i) => ({...p, idx: i}))
-      .forEach((p, i) => {
+    players.forEach((p, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${i+1}</td>
           <td>${p.firstName} ${p.lastName}</td>
+          <td>${p.pid}</td>
           <td>
-            <button class="edit-btn" data-idx="${p.idx}">Edit</button>
-            <button class="delete-btn" data-idx="${p.idx}">Delete</button>
-            <input type="checkbox" class="batch-select" data-idx="${p.idx}">
+            <button class="edit-btn" data-idx="${i}">Edit</button>
+            <button class="delete-btn" data-idx="${i}">Delete</button>
+            <input type="checkbox" class="batch-select" data-idx="${i}">
           </td>
-          <td></td>
         `;
         tbody.appendChild(tr);
-      });
+    });
+
+    // Add/update table footer for total count
+    let tfoot = playersTable.querySelector('tfoot');
+    if (!tfoot) {
+        tfoot = document.createElement('tfoot');
+        playersTable.appendChild(tfoot);
+    }
+    tfoot.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:right;font-weight:bold;">
+          Total Players: ${players.length}
+        </td>
+      </tr>
+    `;
+
     // Attach events
     tbody.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editPlayer(btn.dataset.idx));
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => removePlayer(btn.dataset.idx));
