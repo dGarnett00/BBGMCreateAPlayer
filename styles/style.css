@@ -325,3 +325,95 @@ h1, h2 {
   box-shadow: 0 0 0 2px #1976d2;
 }
 
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0 2em 0;
+  background: #23272e;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08);
+}
+.players-table th, .players-table td {
+  border: 1px solid #26334d;
+  padding: 0.7em 1em;
+  text-align: left;
+  font-size: 1.04em;
+}
+.players-table th {
+  background: #1a1d23;
+  color: #4fc3f7;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.players-table tr:nth-child(even) {
+  background: #20232a;
+}
+.players-table tr:hover {
+  background: #26334d;
+  transition: background 0.2s;
+}
+.tag {
+  display: inline-block;
+  padding: 0.22em 0.7em;
+  border-radius: 0.7em;
+  font-size: 0.97em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #fff;
+  box-shadow: 0 1px 4px #0002;
+  margin-right: 0.2em;
+}
+.tag-manual {
+  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+  color: #1a273a;
+}
+.tag-generated {
+  background: linear-gradient(90deg, #2196f3 0%, #21cbf3 100%);
+}
+.tag-uploaded {
+  background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
+  color: #232526;
+}
+.edit-btn, .delete-btn {
+  margin-right: 0.5em;
+  background: #23272e;
+  color: #4fc3f7;
+  border: 1px solid #4fc3f7;
+  border-radius: 4px;
+  padding: 0.3em 0.9em;
+  font-size: 0.98em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.edit-btn:hover, .edit-btn:focus {
+  background: #1976d2;
+  color: #fff;
+  border: 1.5px solid #1976d2;
+}
+.delete-btn:hover, .delete-btn:focus {
+  background: #e53935;
+  color: #fff;
+  border: 1.5px solid #e53935;
+}
+.batch-select {
+  accent-color: #4fc3f7;
+  width: 1.1em;
+  height: 1.1em;
+  margin-left: 0.5em;
+}
+#sourceStats {
+  font-size: 1.08em;
+  font-weight: 600;
+  margin-bottom: 0.7em;
+  letter-spacing: 0.5px;
+}
+#sourceStats span {
+  margin-right: 1.2em;
+}
+#batchDeleteBtn, #batchExportBtn, #undoBtn, #redoBtn {
+  margin-right: 0.7em;
+  margin-bottom: 0.5em;
+}
+
