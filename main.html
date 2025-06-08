@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Draft Prospect Generator</title>
-    <link rel="stylesheet" href="styles/main.css">
-
-
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
     <header>
@@ -14,17 +12,18 @@
     </header>
     <main>
         <section id="newEntrySection" class="card">
-            <h2>Info</h2>
-            <div id="jsonFormContainer" style="margin-top:1rem;"></div>
-            <button id="saveJsonBtn" class="primary-btn" style="margin-top:1rem;">Save</button>
+            <h2>Create a draft prospect. Scroll down to import/edit a draft class</h2>
+            <div id="jsonFormContainer" class="mt-1"></div>
+            <button id="saveJsonBtn" class="primary-btn mt-1">Save</button>
         </section>
-        <section id="outputSection" class="card" style="display:none;">
+        <section id="outputSection" class="card d-none">
             <h2>Saved JSON</h2>
             <pre id="outputJson" class="output-json"></pre>
-            <button id="exportJsonBtn" class="primary-btn" style="margin-top:1rem;">Export JSON</button>
+            <button id="exportJsonBtn" class="primary-btn mt-1">Export JSON</button>
         </section>
-        <hr style="margin:2rem 0;">
-        <input type="file" id="jsonInput" accept=".json">
+        <hr class="my-2">
+        <label for="jsonInput" class="file-label">Import JSON File:</label>
+        <input type="file" id="jsonInput" accept=".json" title="Select a JSON file to import">
     </main>
     <footer>
         <p>&copy; 2025 Draft Prospect Generator</p>
