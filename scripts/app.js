@@ -89,6 +89,7 @@ const saveBtn = document.getElementById('saveJsonBtn');
 const outputSection = document.getElementById('outputSection');
 const outputJson = document.getElementById('outputJson');
 const exportBtn = document.getElementById('exportJsonBtn');
+const generateRandomPlayerBtn = document.getElementById('generateRandomPlayerBtn');
 let allPlayers = [];
 
 // --- Add editable startingSeason input ---
@@ -213,7 +214,7 @@ jsonInput.addEventListener('change', (e) => {
                 players.forEach((p, i) => {
                     const opt = document.createElement('option');
                     opt.value = i;
-                    opt.textContent = p.firstName + ' ' + p.lastName + ' (Player ' + (i + 1) + ')';
+                    opt.textContent = (p.firstName || '') + ' ' + (p.lastName || '') + ' (Player ' + (i + 1) + ')';
                     playerSelect.appendChild(opt);
                 });
 
@@ -283,10 +284,6 @@ exportBtn.addEventListener('click', () => {
     }
     jsonHandler.updateJson(exportObj);
     jsonHandler.exportJson();
-
-    // Re-enable starting season input for next session
-    startingSeasonInput.disabled = false;
-    startingSeasonLocked = false;
 });
 
 // Set imgURL dropdown options for the form (applies to all player forms, including edit)
@@ -555,3 +552,92 @@ const imgUrlOptions = [
   "https://i.imgur.com/cmcAKh3.png"
 ];
 setReadOnlyOptionsMap({ imgURL: imgUrlOptions });
+
+// Utility to get all players from all draft files
+async function getAllDraftPlayers() {
+    const draftFiles = [
+        'Drafts/25DRAFT.json',
+        'Drafts/26draft.json',
+        'Drafts/27DRAFT.json',
+        'Drafts/28DRAFT.json'
+    ];
+    let allPlayers = [];
+    for (const file of draftFiles) {
+        try {
+            const res = await fetch(file);
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data.players)) {
+                    allPlayers = allPlayers.concat(data.players);
+                }
+            }
+        } catch (e) {
+            // Ignore file errors
+        }
+    }
+    return allPlayers;
+}
+
+// Utility to deep merge 10 random players into a new player
+function generateRandomPlayerFromDrafts(players) {
+    if (players.length < 10) return null;
+    const selected = [];
+    const used = new Set();
+    while (selected.length < 10) {
+        const idx = Math.floor(Math.random() * players.length);
+        if (!used.has(idx)) {
+            selected.push(players[idx]);
+            used.add(idx);
+        }
+    }
+    // Merge logic: take random values from each
+    const base = JSON.parse(JSON.stringify(selected[0]));
+    for (let i = 1; i < selected.length; i++) {
+        const p = selected[i];
+        for (const key in p) {
+            if (typeof p[key] === 'object' && p[key] !== null && !Array.isArray(p[key])) {
+                for (const subKey in p[key]) {
+                    if (Math.random() < 0.5) base[key][subKey] = p[key][subKey];
+                }
+            } else if (Array.isArray(p[key])) {
+                if (Math.random() < 0.5) base[key] = JSON.parse(JSON.stringify(p[key]));
+            } else {
+                if (Math.random() < 0.5) base[key] = p[key];
+            }
+        }
+    }
+    base.firstName = selected[Math.floor(Math.random() * selected.length)].firstName;
+    base.lastName = selected[Math.floor(Math.random() * selected.length)].lastName;
+    base.imgURL = selected[Math.floor(Math.random() * selected.length)].imgURL;
+    base.draft.year = new Date().getFullYear();
+    base.draft.tid = -1;
+    base.draft.originalTid = -1;
+    base.draft.round = 0;
+    base.draft.pick = 0;
+    base.injury = { type: 'Healthy', gamesRemaining: 0 };
+    base.injuries = [];
+    base.tid = -2;
+    base.pid = Math.floor(Math.random() * 1000000);
+    base.ratings.forEach(r => {
+        r.season = new Date().getFullYear();
+        r.pos = base.pos;
+        r.ovr = base.draft.ovr;
+        r.pot = base.draft.pot;
+    });
+    return base;
+}
+
+generateRandomPlayerBtn.addEventListener('click', async () => {
+    const allPlayers = await getAllDraftPlayers();
+    if (allPlayers.length < 10) {
+        alert('Not enough players in draft files to generate a random player.');
+        return;
+    }
+    const newPlayer = generateRandomPlayerFromDrafts(allPlayers);
+    if (!newPlayer) {
+        alert('Failed to generate player.');
+        return;
+    }
+    renderJsonForm(newPlayer, jsonFormContainer);
+    alert('Random player generated! You can now edit and save.');
+});
