@@ -850,3 +850,34 @@ function removePlayer(idx) {
     }
 }
 document.getElementById('sourceFilter').onchange = updatePlayersTable;
+
+const batchBar = document.createElement('div');
+batchBar.innerHTML = `
+  <button id="batchDeleteBtn" class="primary-btn">Delete Selected</button>
+  <button id="batchExportBtn" class="primary-btn">Export Selected</button>
+`;
+document.querySelector('main').insertBefore(batchBar, playersTable);
+
+document.getElementById('batchDeleteBtn').onclick = () => {
+    const selected = Array.from(document.querySelectorAll('.batch-select:checked')).map(cb => Number(cb.dataset.idx));
+    if (selected.length && confirm(`Delete ${selected.length} players?`)) {
+        players = players.filter((_, i) => !selected.includes(i));
+        pushUndoState();
+        updatePlayersTable();
+        updateOutputJson();
+        updateTotalPlayersDisplay(players);
+        updateSourceStats();
+    }
+};
+document.getElementById('batchExportBtn').onclick = () => {
+    const selected = Array.from(document.querySelectorAll('.batch-select:checked')).map(cb => Number(cb.dataset.idx));
+    if (selected.length) {
+        const exportObj = {
+            version: TOP_LEVEL_VERSION,
+            startingSeason: topLevelStartingSeason,
+            players: players.filter((_, i) => selected.includes(i))
+        };
+        jsonHandler.updateJson(exportObj);
+        jsonHandler.exportJson();
+    }
+};
