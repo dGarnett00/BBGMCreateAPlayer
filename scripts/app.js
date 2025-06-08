@@ -656,3 +656,66 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
     outputSection.style.display = 'block';
     alert('Random player generated and added to output! You can now edit and save.');
 });
+
+const generate5Btn = document.createElement('button');
+generate5Btn.id = 'generate5Btn';
+generate5Btn.textContent = 'Generate 5 Players';
+generate5Btn.className = 'primary-btn';
+generate5Btn.setAttribute('aria-label', 'Generate 5 random players');
+generate5Btn.style.marginLeft = '0.5em';
+
+const generate20Btn = document.createElement('button');
+generate20Btn.id = 'generate20Btn';
+generate20Btn.textContent = 'Generate 20 Players';
+generate20Btn.className = 'primary-btn';
+generate20Btn.setAttribute('aria-label', 'Generate 20 random players');
+generate20Btn.style.marginLeft = '0.5em';
+
+const generate40Btn = document.createElement('button');
+generate40Btn.id = 'generate40Btn';
+generate40Btn.textContent = 'Generate 40 Players';
+generate40Btn.className = 'primary-btn';
+generate40Btn.setAttribute('aria-label', 'Generate 40 random players');
+generate40Btn.style.marginLeft = '0.5em';
+
+// Insert the new buttons after the existing generateRandomPlayerBtn
+const btnParent = generateRandomPlayerBtn.parentNode;
+btnParent.insertBefore(generate5Btn, generateRandomPlayerBtn.nextSibling);
+btnParent.insertBefore(generate20Btn, generate5Btn.nextSibling);
+btnParent.insertBefore(generate40Btn, generate20Btn.nextSibling);
+
+async function generateAndAppendPlayers(count) {
+    if (!window._allDraftPlayersCache) {
+        window._allDraftPlayersCache = await getAllDraftPlayers();
+    }
+    const allDraftPlayers = window._allDraftPlayersCache;
+    if (allDraftPlayers.length < 10) {
+        alert('Not enough players in draft files to generate a random player.');
+        return;
+    }
+    let added = 0;
+    for (let i = 0; i < count; i++) {
+        const newPlayer = generateRandomPlayerFromDrafts(allDraftPlayers);
+        if (!newPlayer) continue;
+        generatedPlayers.push(newPlayer);
+        added++;
+    }
+    if (added === 0) {
+        alert('Failed to generate any players.');
+        return;
+    }
+    // Show the last generated player in the form for editing
+    renderJsonForm(generatedPlayers[generatedPlayers.length - 1], jsonFormContainer);
+    const outputObj = {
+        version: TOP_LEVEL_VERSION,
+        startingSeason: topLevelStartingSeason,
+        players: generatedPlayers
+    };
+    outputJson.textContent = JSON.stringify(outputObj, null, 2);
+    outputSection.style.display = 'block';
+    alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output! You can now edit and save.`);
+}
+
+generate5Btn.addEventListener('click', () => generateAndAppendPlayers(5));
+generate20Btn.addEventListener('click', () => generateAndAppendPlayers(20));
+generate40Btn.addEventListener('click', () => generateAndAppendPlayers(40));

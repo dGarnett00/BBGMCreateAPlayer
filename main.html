@@ -15,7 +15,11 @@
             <h2>Create a draft prospect. Scroll down to import/edit a draft class</h2>
             <div id="jsonFormContainer" class="mt-1"></div>
             <button id="saveJsonBtn" class="primary-btn mt-1">Save</button>
-            <button id="generateRandomPlayerBtn" class="primary-btn mt-1" aria-label="Generate Random Player">Generate Random Player</button>
+            <div class="button-row" aria-label="Player generation controls">
+              <button id="generateRandomPlayerBtn" class="primary-btn" aria-label="Generate 1 random player">Generate Random Player</button>
+              <!-- The following buttons are inserted by JS for accessibility and maintainability -->
+              <span id="bulkGenerateBtnPlaceholder" aria-hidden="true"></span>
+            </div>
         </section>
         <section id="outputSection" class="card">
             <h2>Saved JSON</h2>
