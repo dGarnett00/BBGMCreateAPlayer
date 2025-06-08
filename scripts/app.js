@@ -758,11 +758,19 @@ function updateTotalPlayersDisplay(playersArr) {
     totalPlayersDisplay.textContent = `Total players in output: ${playersArr.length}`;
 }
 
+function validatePlayer(player) {
+    if (!player.firstName || !player.lastName || !player.pid) {
+        alert('Player must have a first name, last name, and unique pid.');
+        return false;
+    }
+    return true;
+}
 let players = [];
 let undoStack = [];
 let redoStack = [];
 
 function addPlayer(player, source) {
+    if (!validatePlayer(player)) return false;
     // Prevent duplicates by pid or (firstName+lastName)
     if (players.some(p => p.pid === player.pid || (p.firstName === player.firstName && p.lastName === player.lastName))) {
         alert('Duplicate player detected. Player not added.');
