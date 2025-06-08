@@ -217,7 +217,7 @@ window.deleteOutputPlayer = function(idx) {
 
 // Save button logic (append to output JSON array and show combined JSON)
 saveBtn.addEventListener('click', () => {
-    const newPlayer = getFormData(jsonFormContainer); // or however you get form data
+    const newPlayer = getFormData(jsonFormContainer, defaultPlayer);
 
     if (!validatePlayer(newPlayer)) return;
 
@@ -227,7 +227,7 @@ saveBtn.addEventListener('click', () => {
         return;
     }
 
-    // Add to the main players array
+    // Add to the main players array (table)
     players.push(newPlayer);
     pushUndoState();
     updatePlayersTable();

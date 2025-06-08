@@ -109,7 +109,7 @@ function createInput(name, value, path, readOnly = false) {
 
 const readOnlyKeys = [
     "version",
-    "tid", "relatives", "fuzz", "pid", "imgURL", "imageURL", "originalTid",
+    "tid", "relatives", "fuzz", "imgURL", "imageURL", "originalTid",
     "round",
     "pick",
     "injury.type",
