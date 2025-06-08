@@ -222,8 +222,6 @@ jsonInput.addEventListener('change', (e) => {
             // Validate and add each imported player
             let added = 0, skipped = 0;
             imported.forEach(p => {
-                // Assign source
-                p.source = 'uploaded';
                 // Validate required fields
                 if (!p.firstName || !p.lastName || !p.pid) {
                     skipped++;
@@ -241,7 +239,6 @@ jsonInput.addEventListener('change', (e) => {
             updatePlayersTable();
             updateOutputJson();
             updateTotalPlayersDisplay(players);
-            updateSourceStats();
             if (added === 0) {
                 alert('No valid or unique players were imported.');
             } else if (skipped > 0) {
@@ -273,13 +270,12 @@ updateBtn.addEventListener('click', () => {
         // Update the main players array by pid
         const mainIdx = players.findIndex(p => p.pid === updated.pid);
         if (mainIdx !== -1) {
-            players[mainIdx] = { ...updated, source: 'uploaded' };
+            players[mainIdx] = { ...updated };
         }
         pushUndoState();
         updatePlayersTable();
         updateOutputJson();
         updateTotalPlayersDisplay(players);
-        updateSourceStats();
         alert('Player updated!');
     }
 });
@@ -764,20 +760,18 @@ let players = [];
 let undoStack = [];
 let redoStack = [];
 
-function addPlayer(player, source) {
+function addPlayer(player) {
     if (!validatePlayer(player)) return false;
     // Prevent duplicates by pid or (firstName+lastName)
     if (players.some(p => p.pid === player.pid || (p.firstName === player.firstName && p.lastName === player.lastName))) {
         alert('Duplicate player detected. Player not added.');
         return false;
     }
-    player.source = source;
     players.push(player);
     pushUndoState();
     updatePlayersTable();
     updateOutputJson();
     updateTotalPlayersDisplay(players);
-    updateSourceStats();
     return true;
 }
 
@@ -788,16 +782,9 @@ playersTable.innerHTML = `
   <tr>
     <th>#</th>
     <th>Name</th>
-    <th>Source</th>
     <th>Actions</th>
     <th>
       <input type="checkbox" id="selectAllPlayers" aria-label="Select all players for batch actions">
-      <select id="sourceFilter" style="margin-left:0.7em;">
-        <option value="">All</option>
-        <option value="manual">Manual</option>
-        <option value="generated">Generated</option>
-        <option value="uploaded">Uploaded</option>
-      </select>
     </th>
   </tr>
 </thead>
@@ -805,35 +792,21 @@ playersTable.innerHTML = `
 `;
 document.querySelector('main').insertBefore(playersTable, document.getElementById('outputSection'));
 
-const statsBar = document.createElement('div');
-statsBar.id = 'sourceStats';
-statsBar.style.margin = '1em 0';
-document.querySelector('main').insertBefore(statsBar, playersTable);
-
-function updateSourceStats() {
-    const manual = players.filter(p => p.source === 'manual').length;
-    const generated = players.filter(p => p.source === 'generated').length;
-    const uploaded = players.filter(p => p.source === 'uploaded').length;
-    statsBar.innerHTML = `
-      <span style="color:#4caf50;">Manual: ${manual}</span> | 
-      <span style="color:#2196f3;">Generated: ${generated}</span> | 
-      <span style="color:#ff9800;">Uploaded: ${uploaded}</span>
-    `;
+// Remove source stats bar as it's no longer needed
+if (document.getElementById('sourceStats')) {
+  document.getElementById('sourceStats').remove();
 }
 
 function updatePlayersTable() {
-    const filter = document.getElementById('sourceFilter').value;
     const tbody = playersTable.querySelector('tbody');
     tbody.innerHTML = '';
     players
       .map((p, i) => ({...p, idx: i}))
-      .filter(p => !filter || p.source === filter)
       .forEach((p, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${i+1}</td>
           <td>${p.firstName} ${p.lastName}</td>
-          <td><span class="tag tag-${p.source}">${p.source.charAt(0).toUpperCase() + p.source.slice(1)}</span></td>
           <td>
             <button class="edit-btn" data-idx="${p.idx}">Edit</button>
             <button class="delete-btn" data-idx="${p.idx}">Delete</button>
@@ -906,7 +879,6 @@ function removePlayer(idx) {
         updatePlayersTable();
         updateOutputJson();
         updateTotalPlayersDisplay(players);
-        updateSourceStats();
     }
 }
 document.getElementById('sourceFilter').onchange = updatePlayersTable;
@@ -926,7 +898,6 @@ document.getElementById('batchDeleteBtn').onclick = () => {
         updatePlayersTable();
         updateOutputJson();
         updateTotalPlayersDisplay(players);
-        updateSourceStats();
     }
 };
 document.getElementById('batchExportBtn').onclick = () => {
@@ -953,7 +924,6 @@ function undo() {
         updatePlayersTable();
         updateOutputJson();
         updateTotalPlayersDisplay(players);
-        updateSourceStats();
     }
 }
 function redo() {
@@ -964,7 +934,6 @@ function redo() {
         updatePlayersTable();
         updateOutputJson();
         updateTotalPlayersDisplay(players);
-        updateSourceStats();
     }
 }
 const undoBtn = document.createElement('button');
