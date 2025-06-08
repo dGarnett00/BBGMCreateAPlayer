@@ -221,7 +221,13 @@ jsonInput.addEventListener('change', (e) => {
                     players = [data];
                     uploadedJsonObj = { players: [data] };
                 }
-                uploadedPlayers = players;
+                uploadedPlayers = players.map(p => ({...p, source: 'uploaded'}));
+                players = [...players, ...uploadedPlayers];
+                pushUndoState();
+                updatePlayersTable();
+                updateOutputJson();
+                updateTotalPlayersDisplay(players);
+                updateSourceStats();
 
                 // Populate select dropdown
                 playerSelect.innerHTML = '';
