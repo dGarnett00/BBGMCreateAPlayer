@@ -261,15 +261,26 @@ playerSelect.addEventListener('change', (e) => {
     }
 });
 
-// When the user clicks "Update Player", update the player in memory
+// When the user clicks "Update Player", update the player in memory and in the main table
 updateBtn.addEventListener('click', () => {
     const idx = Number(playerSelect.value);
     if (uploadedPlayers[idx]) {
         const updated = getFormData(editFormContainer);
         uploadedPlayers[idx] = updated;
-        uploadedJsonObj.players[idx] = updated;
+        if (uploadedJsonObj && Array.isArray(uploadedJsonObj.players)) {
+            uploadedJsonObj.players[idx] = updated;
+        }
+        // Update the main players array by pid
+        const mainIdx = players.findIndex(p => p.pid === updated.pid);
+        if (mainIdx !== -1) {
+            players[mainIdx] = { ...updated, source: 'uploaded' };
+        }
+        pushUndoState();
+        updatePlayersTable();
+        updateOutputJson();
+        updateTotalPlayersDisplay(players);
+        updateSourceStats();
         alert('Player updated!');
-        updateTotalPlayersDisplay(uploadedPlayers);
     }
 });
 
