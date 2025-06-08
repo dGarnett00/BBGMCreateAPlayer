@@ -808,3 +808,45 @@ function updateSourceStats() {
       <span style="color:#ff9800;">Uploaded: ${uploaded}</span>
     `;
 }
+
+function updatePlayersTable() {
+    const filter = document.getElementById('sourceFilter').value;
+    const tbody = playersTable.querySelector('tbody');
+    tbody.innerHTML = '';
+    players
+      .map((p, i) => ({...p, idx: i}))
+      .filter(p => !filter || p.source === filter)
+      .forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${p.firstName} ${p.lastName}</td>
+          <td><span class="tag tag-${p.source}">${p.source.charAt(0).toUpperCase() + p.source.slice(1)}</span></td>
+          <td>
+            <button class="edit-btn" data-idx="${p.idx}">Edit</button>
+            <button class="delete-btn" data-idx="${p.idx}">Delete</button>
+            <input type="checkbox" class="batch-select" data-idx="${p.idx}">
+          </td>
+          <td></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    // Attach events
+    tbody.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editPlayer(btn.dataset.idx));
+    tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => removePlayer(btn.dataset.idx));
+}
+function editPlayer(idx) {
+    renderJsonForm(players[idx], jsonFormContainer);
+    currentEditIdx = idx;
+}
+function removePlayer(idx) {
+    if (confirm('Remove this player?')) {
+        players.splice(idx, 1);
+        pushUndoState();
+        updatePlayersTable();
+        updateOutputJson();
+        updateTotalPlayersDisplay(players);
+        updateSourceStats();
+    }
+}
+document.getElementById('sourceFilter').onchange = updatePlayersTable;
