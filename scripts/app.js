@@ -138,18 +138,31 @@ startingSeasonInput.addEventListener('change', () => {
 let currentPlayer = structuredClone(defaultPlayer);
 renderJsonForm(currentPlayer, jsonFormContainer);
 
-// Save button logic (append to allPlayers and show combined JSON)
+// Save button logic (append to output JSON array and show combined JSON)
 saveBtn.addEventListener('click', () => {
     const updatedPlayer = getFormData(jsonFormContainer);
-    allPlayers.push(updatedPlayer);
-    const outputObj = {
-        version: TOP_LEVEL_VERSION,
-        startingSeason: topLevelStartingSeason,
-        players: allPlayers
-    };
-    outputJson.textContent = JSON.stringify(outputObj, null, 2);
-    outputSection.style.display = 'block';
-    updateTotalPlayersDisplay(allPlayers);
+    // If generatedPlayers is being used (bulk/random generation), append to it; otherwise, use allPlayers
+    if (Array.isArray(generatedPlayers) && generatedPlayers.length > 0) {
+        generatedPlayers.push(updatedPlayer);
+        const outputObj = {
+            version: TOP_LEVEL_VERSION,
+            startingSeason: topLevelStartingSeason,
+            players: generatedPlayers
+        };
+        outputJson.textContent = JSON.stringify(outputObj, null, 2);
+        outputSection.style.display = 'block';
+        updateTotalPlayersDisplay(generatedPlayers);
+    } else {
+        allPlayers.push(updatedPlayer);
+        const outputObj = {
+            version: TOP_LEVEL_VERSION,
+            startingSeason: topLevelStartingSeason,
+            players: allPlayers
+        };
+        outputJson.textContent = JSON.stringify(outputObj, null, 2);
+        outputSection.style.display = 'block';
+        updateTotalPlayersDisplay(allPlayers);
+    }
     currentPlayer = structuredClone(defaultPlayer);
     renderJsonForm(currentPlayer, jsonFormContainer);
 });
@@ -273,17 +286,25 @@ updateBtn.addEventListener('click', () => {
 // Optionally, update export logic to export the edited uploaded players if present
 exportBtn.addEventListener('click', () => {
     let exportObj;
+    let playersToExport;
     if (uploadedPlayers.length > 0) {
         exportObj = {
             ...uploadedJsonObj,
             players: uploadedPlayers
         };
+        playersToExport = uploadedPlayers;
     } else {
         exportObj = {
             version: TOP_LEVEL_VERSION,
             startingSeason: topLevelStartingSeason,
             players: allPlayers
         };
+        playersToExport = allPlayers;
+    }
+    // Enforce min/max player rule
+    if (!Array.isArray(playersToExport) || playersToExport.length < 70 || playersToExport.length > 70) {
+        alert('Error: You must have exactly 70 players in your draft class to export. Current count: ' + (playersToExport ? playersToExport.length : 0));
+        return;
     }
     jsonHandler.updateJson(exportObj);
     jsonHandler.exportJson();
