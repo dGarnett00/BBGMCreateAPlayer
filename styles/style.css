@@ -1,0 +1,220 @@
+body {
+    margin : 0;
+    font-family: 
+    background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+    color: #e3eafc;
+    min-height: 100vh;
+}
+
+header, footer {
+    background: linear-gradient(90deg, #232526 0%, #414345 100%); 
+    color: #fff;
+    padding: 1.2rem;
+    tect-align: center;
+    letter-spacing: 2px;
+    font-weight: 700
+    box-shadow: 0 2px rgba(44, 83, 100, 0.18);
+}
+
+main {
+    padding: 2rem 1rem;
+    max-width: 950px;
+    margin: auto;
+}
+
+.card {
+    background: rgba(30, 42, 61, 0.98);
+    border-radius: 22px;
+    box-shadow: 0 8px 40px 0 rgba(44, 83, 100, 0.18), 0 2px 8px rgba(44, 83, 100, 0.12);
+    padding: 2.7rem 2.2rem;
+    margin-bottom: 2.7rem;
+    position: relative;
+    overflow: visible;
+    border: 1.5px solid #2a6fa1;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    border: 1.5px solid #4fc3f7;
+    box-shadow: 0 16px 64px  rgba(44, 83, 100, 0.28), 0 4px 16px rgba(44, 83, 100, 0.18);
+}
+
+h1, h2 {
+    margin: 0 0 1.2rem 0;
+    color: #4fc3f7;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px #2a6fa1aa;
+}
+
+.primary-btn {
+background: linear-gradient(90deg, #2a6fa1 0%, #4fc3f7 100%);
+    color: #fff;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.18rem;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    margin-top: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(90deg, #4fc3f7 0%, #2a6fa1 100%);
+    box-shadow: 0 4px 24px rgba(44, 83, 100, 0.22);
+    transform: translateY(-2px) scale(1.04);
+}   
+
+.output-json {
+    background: #181f2a;
+    color: #b3e5fc;
+    padding: 1.4rem;
+    border-radius: 12px;
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    font-size: 1.08rem;
+    overflow-x: auto;
+    margin-top: 1.2rem;
+    border: 1.5px solid #4fc3f7;
+    box-shadow: 0 2px 12px #2a6fa144;
+}
+
+.json-field {
+    margin-bottom: 1.7rem;
+    position: relative;
+    padding-left: 0.7rem;
+    border-left: 3px solid #232526;
+    transition: border-color 0.2s, background 0.2s;
+    background: rgba(44, 83, 100, 0.10);
+    border-radius: 6px;
+}
+
+.json-field:hover {
+    border-left: 3px solid #4fc3f7;
+    background: rgba(44, 83, 100, 0.18);
+}
+
+.json-field label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: #4fc3f7;
+    letter-spacing: 0.7px;
+    font-size: 1.07rem;
+    transition: color 0.2s;
+    text-shadow: 0 1px 4px #2a6fa1aa;
+}
+
+.json-input, .json-field textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1.08rem;
+    border: 1.5px solid #2a6fa1;
+    border-radius: 7px;
+    box-sizing: border-box;
+    margin-bottom: 0.18rem;
+    background: #232526;
+    color: #e3eafc;
+    transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    font-family: inherit;
+    box-shadow: 0 1px 6px #2a6fa122;
+}
+
+.json-input:focus, .json-field textarea:focus {
+    border: 1.5px solid #4fc3f7;
+    box-shadow: 0 0 0 2px #4fc3f7aa;
+    background: #181f2a;
+}
+
+.json-array, .json-object {
+    border-radius: 12px;
+    margin-bottom: 1.3rem;
+    padding: 1.1rem 1.3rem 1.1rem 1.7rem;
+    position: relative;
+    background: linear-gradient(120deg, #1a273a 0%, #232526 100%);
+    box-shadow: 0 2px 12px #2a6fa122;
+}
+
+.json-array::before, .json-object::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 6px;
+    border-radius: 6px;
+    z-index: 1;
+    background: linear-gradient(180deg, #4fc3f7 0%, #2a6fa1 100%);
+    box-shadow: 0 0 12px 2px #4fc3f7aa;
+    opacity: 0.85;
+}
+
+.json-array {
+    border-left: 6px solid #4fc3f7;
+    background: linear-gradient(120deg, #1a273a 0%, #2a6fa1 100%);
+}
+
+.json-object {
+    border-left: 6px solid #2a6fa1;
+    background: linear-gradient(120deg, #1a273a 0%, #4fc3f7 100%);
+}
+
+.collapse-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: #4fc3f7;
+    background: none;
+    border: none;
+    font-size: 1.08rem;
+    margin-bottom: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    transition: background 0.2s, color 0.2s;
+    outline: none;
+    gap: 0.5rem;
+}
+
+.collapse-toggle:hover, .collapse-toggle:focus {
+    background: #2a6fa1;
+    color: #fff;
+}
+
+.collapse-arrow {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+.collapsed > .collapse-arrow {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    display: none;
+    animation: fadeIn 0.3s;
+}
+
+.collapsible.open > .collapsible-content {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 1rem;
+    }
+    .card {
+        padding: 1.2rem 0.5rem;
+    }
+    .json-array, .json-object {
+        padding: 0.7rem 0.7rem 0.7rem 1.1rem;
+    }
+}
