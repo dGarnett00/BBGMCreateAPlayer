@@ -138,33 +138,104 @@ startingSeasonInput.addEventListener('change', () => {
 let currentPlayer = structuredClone(defaultPlayer);
 renderJsonForm(currentPlayer, jsonFormContainer);
 
+// --- Modern Table UI for Output Players ---
+
+// Use this as the single source of truth for output
+let outputPlayers = [];
+
+// Always call this after any add/edit/delete/generate
+function updateOutputAndCount() {
+    // Compose output object
+    const outputObj = {
+        version: TOP_LEVEL_VERSION,
+        startingSeason: topLevelStartingSeason,
+        players: outputPlayers
+    };
+    outputJson.textContent = JSON.stringify(outputObj, null, 2);
+    outputSection.style.display = 'block';
+    updateTotalPlayersDisplay(outputPlayers);
+    renderPlayerTable(outputPlayers);
+}
+
+// Render the player table
+function renderPlayerTable(players) {
+    const container = document.getElementById('playerTableContainer');
+    if (!container) return;
+    if (!players.length) {
+        container.innerHTML = '<p>No players yet.</p>';
+        return;
+    }
+    let html = `<table class="player-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Position</th>
+                <th>Ovr</th>
+                <th>Pot</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    players.forEach((p, idx) => {
+        html += `<tr>
+            <td>${idx + 1}</td>
+            <td>${p.firstName || ''}</td>
+            <td>${p.lastName || ''}</td>
+            <td>${p.pos || ''}</td>
+            <td>${(p.ratings && p.ratings[0] && p.ratings[0].ovr) || ''}</td>
+            <td>${(p.ratings && p.ratings[0] && p.ratings[0].pot) || ''}</td>
+            <td>
+                <button type="button" onclick="window.editOutputPlayer(${idx})">Edit</button>
+                <button type="button" onclick="window.deleteOutputPlayer(${idx})">Delete</button>
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// Edit and delete handlers (must be global for inline onclick)
+window.editOutputPlayer = function(idx) {
+    if (outputPlayers[idx]) {
+        renderJsonForm(outputPlayers[idx], jsonFormContainer);
+        window._editingOutputIdx = idx;
+    }
+};
+window.deleteOutputPlayer = function(idx) {
+    if (outputPlayers[idx] && confirm('Delete this player?')) {
+        outputPlayers.splice(idx, 1);
+        updateOutputAndCount();
+        // Reset form if editing this player
+        if (window._editingOutputIdx === idx) {
+            renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
+            window._editingOutputIdx = undefined;
+        }
+    }
+};
+
 // Save button logic (append to output JSON array and show combined JSON)
 saveBtn.addEventListener('click', () => {
-    const updatedPlayer = getFormData(jsonFormContainer);
-    // If generatedPlayers is being used (bulk/random generation), append to it; otherwise, use allPlayers
-    if (Array.isArray(generatedPlayers) && generatedPlayers.length > 0) {
-        generatedPlayers.push(updatedPlayer);
-        const outputObj = {
-            version: TOP_LEVEL_VERSION,
-            startingSeason: topLevelStartingSeason,
-            players: generatedPlayers
-        };
-        outputJson.textContent = JSON.stringify(outputObj, null, 2);
-        outputSection.style.display = 'block';
-        updateTotalPlayersDisplay(generatedPlayers);
-    } else {
-        allPlayers.push(updatedPlayer);
-        const outputObj = {
-            version: TOP_LEVEL_VERSION,
-            startingSeason: topLevelStartingSeason,
-            players: allPlayers
-        };
-        outputJson.textContent = JSON.stringify(outputObj, null, 2);
-        outputSection.style.display = 'block';
-        updateTotalPlayersDisplay(allPlayers);
+    const newPlayer = getFormData(jsonFormContainer); // or however you get form data
+
+    if (!validatePlayer(newPlayer)) return;
+
+    // Prevent duplicates
+    if (players.some(p => p.pid === newPlayer.pid || (p.firstName === newPlayer.firstName && p.lastName === newPlayer.lastName))) {
+        alert('Duplicate player detected. Player not added.');
+        return;
     }
-    currentPlayer = structuredClone(defaultPlayer);
-    renderJsonForm(currentPlayer, jsonFormContainer);
+
+    // Add to the main players array
+    players.push(newPlayer);
+    pushUndoState();
+    updatePlayersTable();
+    updateOutputJson();
+    updateTotalPlayersDisplay(players);
+
+    // Reset form for next entry
+    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
 });
 
 // --- Import/export and edit logic ---
@@ -669,15 +740,9 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
     renderJsonForm(newPlayer, jsonFormContainer);
     // Add the generated player to the output JSON (append to list)
     generatedPlayers.push(newPlayer);
-    const outputObj = {
-        version: TOP_LEVEL_VERSION,
-        startingSeason: topLevelStartingSeason,
-        players: generatedPlayers
-    };
-    outputJson.textContent = JSON.stringify(outputObj, null, 2);
-    outputSection.style.display = 'block';
-    updateTotalPlayersDisplay(generatedPlayers);
-    alert('Random player generated and added to output! You can now edit and save.');
+    updateOutputAndCount();
+    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
+    alert('Random player generated and added to output!');
 });
 
 const generate5Btn = document.createElement('button');
@@ -729,15 +794,9 @@ async function generateAndAppendPlayers(count) {
     }
     // Show the last generated player in the form for editing
     renderJsonForm(generatedPlayers[generatedPlayers.length - 1], jsonFormContainer);
-    const outputObj = {
-        version: TOP_LEVEL_VERSION,
-        startingSeason: topLevelStartingSeason,
-        players: generatedPlayers
-    };
-    outputJson.textContent = JSON.stringify(outputObj, null, 2);
-    outputSection.style.display = 'block';
-    updateTotalPlayersDisplay(generatedPlayers);
-    alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output! You can now edit and save.`);
+    updateOutputAndCount();
+    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
+    alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output!`);
 }
 
 generate5Btn.addEventListener('click', () => generateAndAppendPlayers(5));
@@ -946,3 +1005,8 @@ redoBtn.className = 'primary-btn';
 redoBtn.onclick = redo;
 batchBar.appendChild(undoBtn);
 batchBar.appendChild(redoBtn);
+
+// On page load, render empty table
+document.addEventListener('DOMContentLoaded', () => {
+    renderPlayerTable(outputPlayers);
+});
