@@ -1,3 +1,5 @@
+// --- Artistic JSON Form UI Renderer ---
+
 let readOnlyOptionsMap = {};
 
 export function setReadOnlyOptionsMap(optionsMap) {
