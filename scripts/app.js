@@ -208,62 +208,46 @@ jsonInput.addEventListener('change', (e) => {
         jsonHandler.importJson(file, (err, data) => {
             if (err) {
                 alert('Invalid JSON file.');
+                return;
+            }
+            // Detect players array
+            let imported = [];
+            if (Array.isArray(data.players)) {
+                imported = data.players;
+            } else if (Array.isArray(data)) {
+                imported = data;
+            } else if (typeof data === 'object' && data !== null) {
+                imported = [data];
+            }
+            // Validate and add each imported player
+            let added = 0, skipped = 0;
+            imported.forEach(p => {
+                // Assign source
+                p.source = 'uploaded';
+                // Validate required fields
+                if (!p.firstName || !p.lastName || !p.pid) {
+                    skipped++;
+                    return;
+                }
+                // Prevent duplicates by pid or name
+                if (players.some(existing => existing.pid === p.pid || (existing.firstName === p.firstName && existing.lastName === p.lastName))) {
+                    skipped++;
+                    return;
+                }
+                players.push(p);
+                added++;
+            });
+            pushUndoState();
+            updatePlayersTable();
+            updateOutputJson();
+            updateTotalPlayersDisplay(players);
+            updateSourceStats();
+            if (added === 0) {
+                alert('No valid or unique players were imported.');
+            } else if (skipped > 0) {
+                alert(`${added} player(s) imported. ${skipped} duplicate or invalid player(s) skipped.`);
             } else {
-                // Detect players array
-                let players = [];
-                if (Array.isArray(data.players)) {
-                    players = data.players;
-                    uploadedJsonObj = data;
-                } else if (Array.isArray(data)) {
-                    players = data;
-                    uploadedJsonObj = { players: data };
-                } else {
-                    players = [data];
-                    uploadedJsonObj = { players: [data] };
-                }
-                uploadedPlayers = players.map(p => ({...p, source: 'uploaded'}));
-                players = [...players, ...uploadedPlayers];
-                pushUndoState();
-                updatePlayersTable();
-                updateOutputJson();
-                updateTotalPlayersDisplay(players);
-                updateSourceStats();
-
-                // Populate select dropdown
-                playerSelect.innerHTML = '';
-                players.forEach((p, i) => {
-                    const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.textContent = (p.firstName || '') + ' ' + (p.lastName || '') + ' (Player ' + (i + 1) + ')';
-                    playerSelect.appendChild(opt);
-                });
-
-                // Show edit section if players found
-                if (players.length > 0) {
-                    editSection.style.display = '';
-                    renderJsonForm(players[0], editFormContainer);
-                } else {
-                    editSection.style.display = 'none';
-                }
-
-                // If the imported file is an array, use as players; if object, use its players
-                if (Array.isArray(data.players)) {
-                    allPlayers = data.players;
-                } else if (Array.isArray(data)) {
-                    allPlayers = data;
-                } else {
-                    allPlayers = [data];
-                }
-                renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
-                exportBtn.style.display = 'inline-block';
-                const outputObj = {
-                    version: TOP_LEVEL_VERSION,
-                    startingSeason: topLevelStartingSeason,
-                    players: allPlayers
-                };
-                outputJson.textContent = JSON.stringify(outputObj, null, 2);
-                outputSection.style.display = 'block';
-                updateTotalPlayersDisplay(allPlayers);
+                alert(`${added} player(s) imported successfully!`);
             }
         });
     }
