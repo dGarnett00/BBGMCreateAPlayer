@@ -17,8 +17,8 @@ const defaultPlayer = {
     "year": "",
     "tid": -1,
     "originalTid": -1,
-    "round": "",
-    "pick": "",
+    "round": 0,
+    "pick": 0,
     "skills": [],
     "pot": "",
     "ovr": ""
