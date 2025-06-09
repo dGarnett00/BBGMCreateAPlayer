@@ -166,18 +166,18 @@ function renderPlayerTable(players) {
         return;
     }
     let html = `<table class="player-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Position</th>
-                <th>Ovr</th>
-                <th>Pot</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>`;
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Position</th>
+            <th>Ovr</th>
+            <th>Pot</th>
+            <th>pid</th>
+        </tr>
+    </thead>
+    <tbody>`;
     players.forEach((p, idx) => {
         html += `<tr>
             <td>${idx + 1}</td>
@@ -186,10 +186,7 @@ function renderPlayerTable(players) {
             <td>${p.pos || ''}</td>
             <td>${(p.ratings && p.ratings[0] && p.ratings[0].ovr) || ''}</td>
             <td>${(p.ratings && p.ratings[0] && p.ratings[0].pot) || ''}</td>
-            <td>
-                <button type="button" onclick="window.editOutputPlayer(${idx})">Edit</button>
-                <button type="button" onclick="window.deleteOutputPlayer(${idx})">Delete</button>
-            </td>
+            <td>${p.pid || ''}</td>
         </tr>`;
     });
     html += '</tbody></table>';
@@ -831,7 +828,7 @@ playersTable.innerHTML = `
   <tr>
     <th>#</th>
     <th>Name</th>
-    <th>Actions</th>
+    <th>pid</th>
     <th>
       <input type="checkbox" id="selectAllPlayers" aria-label="Select all players for batch actions">
     </th>
