@@ -829,10 +829,10 @@ playersTable.innerHTML = `
     <th>#</th>
     <th>Name</th>
     <th>pid</th>
-    <th>Pos</th>
-    <th>Skills</th>
-    <th>Ovr</th>
-    <th>Pot</th>
+    <th id="sort-pos" style="cursor:pointer;">Pos</th>
+    <th id="sort-skills" style="cursor:pointer;">Skills</th>
+    <th id="sort-ovr" style="cursor:pointer;">Ovr</th>
+    <th id="sort-pot" style="cursor:pointer;">Pot</th>
     <th>
       <input type="checkbox" id="selectAllPlayers" aria-label="Select all players for batch actions">
     </th>
@@ -847,11 +847,58 @@ if (document.getElementById('sourceStats')) {
   document.getElementById('sourceStats').remove();
 }
 
-// Update the updatePlayersTable function to include ovr and pot
+// --- Sorting State ---
+let sortState = {
+    column: null, // e.g. 'pot', 'pos', 'ovr', 'skills'
+    direction: 1  // 1 = ascending, -1 = descending
+};
+
+// --- Sorting Logic ---
+function sortPlayers(players, column, direction) {
+    return [...players].sort((a, b) => {
+        let aVal, bVal;
+        switch (column) {
+            case 'pot':
+                aVal = a.ratings?.[0]?.pot ?? '';
+                bVal = b.ratings?.[0]?.pot ?? '';
+                break;
+            case 'ovr':
+                aVal = a.ratings?.[0]?.ovr ?? '';
+                bVal = b.ratings?.[0]?.ovr ?? '';
+                break;
+            case 'pos':
+                aVal = a.pos ?? '';
+                bVal = b.pos ?? '';
+                break;
+            case 'skills':
+                aVal = Array.isArray(a.ratings?.[0]?.skills) ? a.ratings[0].skills.join(',') : '';
+                bVal = Array.isArray(b.ratings?.[0]?.skills) ? b.ratings[0].skills.join(',') : '';
+                break;
+            default:
+                return 0;
+        }
+        // Numeric sort for ovr/pot, string sort for pos/skills
+        if (column === 'ovr' || column === 'pot') {
+            aVal = Number(aVal) || 0;
+            bVal = Number(bVal) || 0;
+            return (aVal - bVal) * direction;
+        } else {
+            return aVal.localeCompare(bVal) * direction;
+        }
+    });
+}
+
+// --- Update Table Function ---
 function updatePlayersTable() {
     const tbody = playersTable.querySelector('tbody');
     tbody.innerHTML = '';
-    players.forEach((p, i) => {
+
+    let displayPlayers = players;
+    if (sortState.column) {
+        displayPlayers = sortPlayers(players, sortState.column, sortState.direction);
+    }
+
+    displayPlayers.forEach((p, i) => {
         const ovr = (p.ratings && p.ratings[0] && p.ratings[0].ovr) || '';
         const pot = (p.ratings && p.ratings[0] && p.ratings[0].pot) || '';
         const pos = p.pos || (p.ratings && p.ratings[0] && p.ratings[0].pos) || '';
@@ -894,6 +941,28 @@ function updatePlayersTable() {
     tbody.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editPlayer(btn.dataset.idx));
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => removePlayer(btn.dataset.idx));
 }
+
+// --- Attach Sort Handlers ---
+playersTable.querySelector('#sort-pos').onclick = () => {
+    sortState.direction = sortState.column === 'pos' ? -sortState.direction : 1;
+    sortState.column = 'pos';
+    updatePlayersTable();
+};
+playersTable.querySelector('#sort-skills').onclick = () => {
+    sortState.direction = sortState.column === 'skills' ? -sortState.direction : 1;
+    sortState.column = 'skills';
+    updatePlayersTable();
+};
+playersTable.querySelector('#sort-ovr').onclick = () => {
+    sortState.direction = sortState.column === 'ovr' ? -sortState.direction : 1;
+    sortState.column = 'ovr';
+    updatePlayersTable();
+};
+playersTable.querySelector('#sort-pot').onclick = () => {
+    sortState.direction = sortState.column === 'pot' ? -sortState.direction : 1;
+    sortState.column = 'pot';
+    updatePlayersTable();
+};
 
 // --- Select All logic ---
 function syncSelectAllCheckbox() {
