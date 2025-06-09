@@ -354,15 +354,25 @@ updateBtn.addEventListener('click', () => {
 
 // Optionally, update export logic to export the edited uploaded players if present
 exportBtn.addEventListener('click', () => {
-    // Compose the export object from the current outputPlayers array
+    // Prefer exporting uploaded/imported players if present
+    let exportArr = [];
+    if (Array.isArray(uploadedPlayers) && uploadedPlayers.length > 0) {
+        exportArr = uploadedPlayers;
+    } else if (Array.isArray(players) && players.length > 0) {
+        exportArr = players;
+    } else if (Array.isArray(outputPlayers) && outputPlayers.length > 0) {
+        exportArr = outputPlayers;
+    }
+    if (exportArr.length === 0) {
+        alert('No players to export.');
+        return;
+    }
     const exportObj = {
         version: TOP_LEVEL_VERSION,
         startingSeason: topLevelStartingSeason,
-        players: outputPlayers
+        players: exportArr
     };
-    // Update the JSON handler's currentJson
     jsonHandler.updateJson(exportObj);
-    // Export using the handler
     jsonHandler.exportJson("draft_class.json");
 });
 
