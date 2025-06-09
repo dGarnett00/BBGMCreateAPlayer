@@ -15,8 +15,8 @@ const defaultPlayer = {
   "college": "",
   "draft": {
     "year": "",
-    "tid": "",
-    "originalTid": "",
+    "tid": -1,
+    "originalTid": -1,
     "round": "",
     "pick": "",
     "skills": [],
@@ -77,7 +77,7 @@ const defaultPlayer = {
     }
   ],
   "relatives": [],
-  "tid": "",
+  "tid": -1,
   "weight": ""
 };
 
@@ -231,8 +231,12 @@ saveBtn.addEventListener('click', () => {
     updateOutputJson();
     updateTotalPlayersDisplay(players);
 
-    // Reset form for next entry
-    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
+    // Always reset tid and originalTid to -1 on form reset
+    const resetPlayer = structuredClone(defaultPlayer);
+    resetPlayer.draft.tid = -1;
+    resetPlayer.draft.originalTid = -1;
+    resetPlayer.tid = -1;
+    renderJsonForm(resetPlayer, jsonFormContainer);
 });
 
 // --- Import/export and edit logic ---
