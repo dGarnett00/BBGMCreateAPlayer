@@ -829,6 +829,8 @@ playersTable.innerHTML = `
     <th>#</th>
     <th>Name</th>
     <th>pid</th>
+    <th>Pos</th>
+    <th>Skills</th>
     <th>Ovr</th>
     <th>Pot</th>
     <th>
@@ -852,11 +854,17 @@ function updatePlayersTable() {
     players.forEach((p, i) => {
         const ovr = (p.ratings && p.ratings[0] && p.ratings[0].ovr) || '';
         const pot = (p.ratings && p.ratings[0] && p.ratings[0].pot) || '';
+        const pos = p.pos || (p.ratings && p.ratings[0] && p.ratings[0].pos) || '';
+        const skills = (p.ratings && p.ratings[0] && Array.isArray(p.ratings[0].skills))
+            ? p.ratings[0].skills.join(', ')
+            : (Array.isArray(p.skills) ? p.skills.join(', ') : '');
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${i+1}</td>
           <td>${p.firstName} ${p.lastName}</td>
           <td>${p.pid}</td>
+          <td>${pos}</td>
+          <td>${skills}</td>
           <td>${ovr}</td>
           <td>${pot}</td>
           <td>
@@ -868,7 +876,7 @@ function updatePlayersTable() {
         tbody.appendChild(tr);
     });
 
-    // Update table footer colspan to match new column count (6)
+    // Update table footer colspan to match new column count (8)
     let tfoot = playersTable.querySelector('tfoot');
     if (!tfoot) {
         tfoot = document.createElement('tfoot');
@@ -876,7 +884,7 @@ function updatePlayersTable() {
     }
     tfoot.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align:right;font-weight:bold;">
+        <td colspan="8" style="text-align:right;font-weight:bold;">
           Total Players: ${players.length}
         </td>
       </tr>
