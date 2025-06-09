@@ -829,6 +829,8 @@ playersTable.innerHTML = `
     <th>#</th>
     <th>Name</th>
     <th>pid</th>
+    <th>Ovr</th>
+    <th>Pot</th>
     <th>
       <input type="checkbox" id="selectAllPlayers" aria-label="Select all players for batch actions">
     </th>
@@ -843,15 +845,20 @@ if (document.getElementById('sourceStats')) {
   document.getElementById('sourceStats').remove();
 }
 
+// Update the updatePlayersTable function to include ovr and pot
 function updatePlayersTable() {
     const tbody = playersTable.querySelector('tbody');
     tbody.innerHTML = '';
     players.forEach((p, i) => {
+        const ovr = (p.ratings && p.ratings[0] && p.ratings[0].ovr) || '';
+        const pot = (p.ratings && p.ratings[0] && p.ratings[0].pot) || '';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${i+1}</td>
           <td>${p.firstName} ${p.lastName}</td>
           <td>${p.pid}</td>
+          <td>${ovr}</td>
+          <td>${pot}</td>
           <td>
             <button class="edit-btn" data-idx="${i}">Edit</button>
             <button class="delete-btn" data-idx="${i}">Delete</button>
@@ -861,7 +868,7 @@ function updatePlayersTable() {
         tbody.appendChild(tr);
     });
 
-    // Add/update table footer for total count
+    // Update table footer colspan to match new column count (6)
     let tfoot = playersTable.querySelector('tfoot');
     if (!tfoot) {
         tfoot = document.createElement('tfoot');
@@ -869,7 +876,7 @@ function updatePlayersTable() {
     }
     tfoot.innerHTML = `
       <tr>
-        <td colspan="4" style="text-align:right;font-weight:bold;">
+        <td colspan="6" style="text-align:right;font-weight:bold;">
           Total Players: ${players.length}
         </td>
       </tr>
@@ -879,6 +886,7 @@ function updatePlayersTable() {
     tbody.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editPlayer(btn.dataset.idx));
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => removePlayer(btn.dataset.idx));
 }
+
 // --- Select All logic ---
 function syncSelectAllCheckbox() {
   const allCheckboxes = Array.from(document.querySelectorAll('.batch-select'));
