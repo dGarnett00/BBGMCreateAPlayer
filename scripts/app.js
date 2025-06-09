@@ -89,12 +89,6 @@ const saveBtn = document.getElementById('saveJsonBtn');
 const outputSection = document.getElementById('outputSection');
 const outputJson = document.getElementById('outputJson');
 const exportBtn = document.getElementById('exportJsonBtn');
-exportBtn.disabled = true; // Disabled by default
-
-function enableExportIfPlayers() {
-    exportBtn.disabled = players.length === 0;
-}
-
 const generateRandomPlayerBtn = document.getElementById('generateRandomPlayerBtn');
 let allPlayers = [];
 
@@ -242,7 +236,6 @@ saveBtn.addEventListener('click', () => {
 
     // Reset form for next entry
     renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
-    enableExportIfPlayers();
 });
 
 // --- Import/export and edit logic ---
@@ -751,7 +744,6 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
     updateTotalPlayersDisplay(players);
     renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
     alert('Random player generated and added to output!');
-    enableExportIfPlayers();
 });
 
 const generate5Btn = document.createElement('button');
