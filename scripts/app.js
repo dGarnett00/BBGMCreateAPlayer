@@ -723,7 +723,6 @@ function generateRandomPlayerFromDrafts(players) {
 let generatedPlayers = [];
 
 generateRandomPlayerBtn.addEventListener('click', async () => {
-    // Only fetch all draft players once, then reuse
     if (!window._allDraftPlayersCache) {
         window._allDraftPlayersCache = await getAllDraftPlayers();
     }
@@ -737,10 +736,12 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
         alert('Failed to generate player.');
         return;
     }
-    renderJsonForm(newPlayer, jsonFormContainer);
-    // Add the generated player to the output JSON (append to list)
-    generatedPlayers.push(newPlayer);
-    updateOutputAndCount();
+    // Add the generated player to the main players array
+    players.push(newPlayer);
+    pushUndoState();
+    updatePlayersTable();
+    updateOutputJson();
+    updateTotalPlayersDisplay(players);
     renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
     alert('Random player generated and added to output!');
 });
@@ -782,10 +783,12 @@ async function generateAndAppendPlayers(count) {
         return;
     }
     let added = 0;
+    let lastPlayer = null;
     for (let i = 0; i < count; i++) {
         const newPlayer = generateRandomPlayerFromDrafts(allDraftPlayers);
         if (!newPlayer) continue;
-        generatedPlayers.push(newPlayer);
+        players.push(newPlayer);
+        lastPlayer = newPlayer;
         added++;
     }
     if (added === 0) {
@@ -793,8 +796,11 @@ async function generateAndAppendPlayers(count) {
         return;
     }
     // Show the last generated player in the form for editing
-    renderJsonForm(generatedPlayers[generatedPlayers.length - 1], jsonFormContainer);
-    updateOutputAndCount();
+    if (lastPlayer) renderJsonForm(lastPlayer, jsonFormContainer);
+    pushUndoState();
+    updatePlayersTable();
+    updateOutputJson();
+    updateTotalPlayersDisplay(players);
     renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
     alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output!`);
 }
