@@ -353,30 +353,16 @@ updateBtn.addEventListener('click', () => {
 
 // Optionally, update export logic to export the edited uploaded players if present
 exportBtn.addEventListener('click', () => {
-    let exportObj;
-    let playersToExport;
-    if (uploadedPlayers.length > 0) {
-        exportObj = {
-            ...uploadedJsonObj,
-            players: uploadedPlayers
-        };
-        playersToExport = uploadedPlayers;
-    } else {
-        exportObj = {
-            version: TOP_LEVEL_VERSION,
-            startingSeason: topLevelStartingSeason,
-            players: allPlayers
-        };
-        playersToExport = allPlayers;
-    }
-    // Enforce min/max player rule
-    if (!Array.isArray(playersToExport) || playersToExport.length < 70 || playersToExport.length > 70) {
-        alert('Error: You must have exactly 70 players in your draft class to export. Current count: ' + (playersToExport ? playersToExport.length : 0));
-        return;
-    }
+    // Compose the export object from the current outputPlayers array
+    const exportObj = {
+        version: TOP_LEVEL_VERSION,
+        startingSeason: topLevelStartingSeason,
+        players: outputPlayers
+    };
+    // Update the JSON handler's currentJson
     jsonHandler.updateJson(exportObj);
-    jsonHandler.exportJson();
-    updateTotalPlayersDisplay(exportObj.players || []);
+    // Export using the handler
+    jsonHandler.exportJson("draft_class.json");
 });
 
 // Set imgURL dropdown options for the form (applies to all player forms, including edit)
