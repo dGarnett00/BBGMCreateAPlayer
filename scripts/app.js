@@ -728,7 +728,7 @@ generateRandomPlayerBtn.addEventListener('click', async () => {
     updatePlayersTable();
     updateOutputJson();
     updateTotalPlayersDisplay(players);
-    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
+    // Do NOT update the create player form!
     alert('Random player generated and added to output!');
 });
 
@@ -769,25 +769,23 @@ async function generateAndAppendPlayers(count) {
         return;
     }
     let added = 0;
-    let lastPlayer = null;
+    // let lastPlayer = null; // Remove this if not used elsewhere
     for (let i = 0; i < count; i++) {
         const newPlayer = generateRandomPlayerFromDrafts(allDraftPlayers);
         if (!newPlayer) continue;
         players.push(newPlayer);
-        lastPlayer = newPlayer;
+        // lastPlayer = newPlayer; // Remove this if not used elsewhere
         added++;
     }
     if (added === 0) {
         alert('Failed to generate any players.');
         return;
     }
-    // Show the last generated player in the form for editing
-    if (lastPlayer) renderJsonForm(lastPlayer, jsonFormContainer);
+    // Do NOT update the create player form!
     pushUndoState();
     updatePlayersTable();
     updateOutputJson();
     updateTotalPlayersDisplay(players);
-    renderJsonForm(structuredClone(defaultPlayer), jsonFormContainer);
     alert(`${added} random player${added > 1 ? 's' : ''} generated and added to output!`);
 }
 
