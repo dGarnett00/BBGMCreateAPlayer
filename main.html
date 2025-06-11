@@ -1,42 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draft Prospect Generator</title>
-    <link rel="stylesheet" href="styles/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generate and manage draft prospects for your basketball simulation.">
+  <title>Draft Prospect Generator</title>
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <header>
-        <h1>Draft Prospect Generator</h1>
-    </header>
-    <main>
-        <section id="newEntrySection" class="card">
-            <h2>Create a draft prospect. Scroll down to import/edit a draft class</h2>
-            <div id="jsonFormContainer" class="mt-1"></div>
-            <button id="saveJsonBtn" class="primary-btn mt-1">Save</button>
-            <div class="button-row" aria-label="Player generation controls">
-              <button id="generateRandomPlayerBtn" class="primary-btn" aria-label="Generate 1 random player">Generate Random Player</button>
-              <!-- The following buttons are inserted by JS for accessibility and maintainability -->
-              <span id="bulkGenerateBtnPlaceholder" aria-hidden="true"></span>
-            </div>
-        </section>
-        <section id="outputSection" class="card output-section" style="display:none;">
-            <h2>Draft Class</h2>
-            <div id="totalPlayersDisplay" class="total-players-display" aria-live="polite"></div>
-            <div id="playerTableContainer"></div>
-            <details style="margin-top:1em;">
-                <summary>Show Raw JSON</summary>
-                <pre id="outputJson" tabindex="0" aria-label="Draft class JSON output"></pre>
-            </details>
-        </section>
-        <hr class="my-2">
-        <label for="jsonInput" class="file-label">Import JSON File:</label>
-        <input type="file" id="jsonInput" accept=".json" title="Select a JSON file to import" aria-label="Import JSON File">
-    </main>
-    <footer>
-        <p>&copy;  2025 Draft Prospect Generator</p>
-    </footer>
-    <script type="module" src="scripts/app.js"></script>
+  <header>
+    <h1>Draft Prospect Generator</h1>
+  </header>
+  <main>
+    <section id="newEntrySection" class="card">
+      <h2>Create a draft prospect. Scroll down to import/edit a draft class</h2>
+      <div id="jsonFormContainer" class="mt-1"></div>
+      <button id="saveJsonBtn" class="primary-btn mt-1">Save</button>
+      <div class="button-row" aria-label="Player generation controls">
+        <button id="generateRandomPlayerBtn" class="primary-btn" aria-label="Generate 1 random player">Generate Random Player</button>
+        <!-- The following buttons are inserted by JS for accessibility and maintainability -->
+        <span id="bulkGenerateBtnPlaceholder" aria-hidden="true"></span>
+      </div>
+    </section>
+    <section id="outputSection" class="card output-section" style="display:none;">
+      <h2>Draft Class</h2>
+      <div id="totalPlayersDisplay" class="total-players-display" aria-live="polite"></div>
+      <div id="playerTableContainer"></div>
+      <details style="margin-top:1em;">
+        <summary>Show Raw JSON</summary>
+        <pre id="outputJson" tabindex="0" aria-label="Draft class JSON output"></pre>
+      </details>
+    </section>
+    <hr class="my-2">
+    <label for="jsonInput" class="file-label">Import JSON File:</label>
+    <input type="file" id="jsonInput" accept=".json" aria-label="Import JSON File" />
+  </main>
+  <footer>
+    <p>&copy; 2025 Draft Prospect Generator</p>
+  </footer>
+  <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
