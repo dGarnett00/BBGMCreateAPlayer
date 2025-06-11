@@ -88,7 +88,6 @@ const jsonFormContainer = document.getElementById('jsonFormContainer');
 const saveBtn = document.getElementById('saveJsonBtn');
 const outputSection = document.getElementById('outputSection');
 const outputJson = document.getElementById('outputJson');
-const exportBtn = document.getElementById('exportJsonBtn');
 const generateRandomPlayerBtn = document.getElementById('generateRandomPlayerBtn');
 let allPlayers = [];
 
@@ -350,30 +349,6 @@ updateBtn.addEventListener('click', () => {
         updateTotalPlayersDisplay(players);
         alert('Player updated!');
     }
-});
-
-// Optionally, update export logic to export the edited uploaded players if present
-exportBtn.addEventListener('click', () => {
-    // Prefer exporting uploaded/imported players if present
-    let exportArr = [];
-    if (Array.isArray(uploadedPlayers) && uploadedPlayers.length > 0) {
-        exportArr = uploadedPlayers;
-    } else if (Array.isArray(players) && players.length > 0) {
-        exportArr = players;
-    } else if (Array.isArray(outputPlayers) && outputPlayers.length > 0) {
-        exportArr = outputPlayers;
-    }
-    if (exportArr.length === 0) {
-        alert('No players to export.');
-        return;
-    }
-    const exportObj = {
-        version: TOP_LEVEL_VERSION,
-        startingSeason: topLevelStartingSeason,
-        players: exportArr
-    };
-    jsonHandler.updateJson(exportObj);
-    jsonHandler.exportJson("draft_class.json");
 });
 
 // Set imgURL dropdown options for the form (applies to all player forms, including edit)

@@ -283,20 +283,17 @@ h1, h2 {
   color: #1976d2;
   margin-bottom: 0.5em;
 }
-.export-btn {
-  margin-top: 1em;
-}
-
-#outputSection.card {
-  background: #23272e;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08);
-  padding: 2em 2em 1.5em 2em;
-  margin-top: 2em;
-  border: 1px solid #26334d;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+ 
+ #outputSection.card {
+   background: #23272e;
+   border-radius: 10px;
+   box-shadow: 0 2px 12px rgba(25, 118, 210, 0.08);
+   padding: 2em 2em 1.5em 2em;
+   margin-top: 2em;
+   border: 1px solid #26334d;
+   max-width: 900px;
+   margin-left: auto;
+   margin-right: auto;
 }
 #outputSection h2 {
   color: #1976d2;
