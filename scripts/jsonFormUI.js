@@ -152,34 +152,35 @@ function renderField(key, value, path) {
     const wrapper = document.createElement('div');
     wrapper.className = 'json-field';
     wrapper.style.marginBottom = "0.7em";
-    wrapper.style.transition = "background 0.2s";    if (path.endsWith('.injury.type') || path === 'injury.type') {
-        // Create a unique ID for the input element based on the path
-        const inputId = `input_${path.replace(/\./g, '_')}`;
+    wrapper.style.transition = "background 0.2s";    
+    
+    // Create a unique ID for the input/control element based on the path
+    const inputId = `input_${path.replace(/\./g, '_')}`;
+    
+    if (path.endsWith('.injury.type') || path === 'injury.type') {
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = inputId;
+        label.htmlFor = inputId; // Ensure the for attribute matches the input ID
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, "Healthy", path, true));
         return wrapper;
     }
     if (path.endsWith('.injury.gamesRemaining') || path === 'injury.gamesRemaining') {
-        // Create a unique ID for the input element based on the path
-        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = inputId;
+        label.htmlFor = inputId; // Ensure the for attribute matches the input ID
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, 0, path, true));
         return wrapper;
-    }    if (isReadOnly(key, path)) {
+    }    
+    
+    if (isReadOnly(key, path)) {
         if ((path.includes('.face') || path === 'face') && Array.isArray(value) && (value.length === 0 || typeof value[0] !== 'object')) {
-            // Create a unique ID for the input element based on the path
-            const inputId = `input_${path.replace(/\./g, '_')}`;
             const label = document.createElement('label');
             label.textContent = key;
-            label.htmlFor = inputId;
+            label.htmlFor = inputId; // Ensure the for attribute matches the input ID
             label.className = "json-label";
             wrapper.appendChild(label);
             wrapper.appendChild(createInput(key, value.join(', '), path, true));
@@ -189,8 +190,8 @@ function renderField(key, value, path) {
             return createCollapsibleSection(key, value, path, true);
         }
         if (typeof value === 'object' && value !== null) {
-            // For objects, the label doesn't need to reference a form element
-            const label = document.createElement('label');
+            // For objects, create a non-form-control label (no 'for' attribute needed)
+            const label = document.createElement('div');
             label.textContent = key;
             label.className = "json-label";
             wrapper.appendChild(label);
@@ -206,11 +207,11 @@ function renderField(key, value, path) {
             pre.textContent = JSON.stringify(value, null, 2);
             wrapper.appendChild(pre);
             return wrapper;
-        }        // Create a unique ID for the input element based on the path
-        const inputId = `input_${path.replace(/\./g, '_')}`;
+        }        
+        
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = inputId;
+        label.htmlFor = inputId; // Ensure the for attribute matches the input ID
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, value, path, true));
@@ -218,11 +219,9 @@ function renderField(key, value, path) {
     }
 
     if (Array.isArray(value) && (value.length === 0 || typeof value[0] !== 'object')) {
-        // Create a unique ID for the input element based on the path
-        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = inputId;
+        label.htmlFor = inputId; // Ensure the for attribute matches the input ID
         label.className = "json-label";
         wrapper.appendChild(label);
         const input = createInput(key, value.join(', '), path);
@@ -233,9 +232,11 @@ function renderField(key, value, path) {
 
     if ((Array.isArray(value) && value.length > 0) || (typeof value === 'object' && value !== null && Object.keys(value).length > 0)) {
         return createCollapsibleSection(key, value, path, false);
-    }    if (typeof value === 'object' && value !== null) {
-        // For empty objects, the label doesn't need to reference a form element
-        const label = document.createElement('label');
+    }    
+    
+    if (typeof value === 'object' && value !== null) {
+        // For empty objects, create a non-form-control label (no 'for' attribute needed)
+        const label = document.createElement('div');
         label.textContent = key;
         label.className = "json-label";
         wrapper.appendChild(label);
@@ -243,11 +244,9 @@ function renderField(key, value, path) {
         return wrapper;
     }
 
-    // Create a unique ID for the input element based on the path
-    const inputId = `input_${path.replace(/\./g, '_')}`;
     const label = document.createElement('label');
     label.textContent = key;
-    label.htmlFor = inputId;
+    label.htmlFor = inputId; // Ensure the for attribute matches the input ID
     label.className = "json-label";
     wrapper.appendChild(label);
     wrapper.appendChild(createInput(key, value, path));
@@ -298,6 +297,7 @@ function createCollapsibleSection(key, value, path, readOnlySection = false) {
         collapsible.classList.remove('open');
     }
 
+    // Use a div instead of a label since this isn't directly labeling a form control
     const label = document.createElement('div');
     label.textContent = key;
     label.className = 'collapsible-label';
@@ -331,6 +331,8 @@ function createCollapsibleSection(key, value, path, readOnlySection = false) {
     btn.style.fontSize = "1.1em";
     btn.style.color = "inherit";
     btn.style.transition = "transform 0.2s";
+    // Add an accessible name to the button
+    btn.setAttribute('aria-label', `Toggle ${key} section`);
 
     function updateArrow() {
         btn.querySelector('.collapse-arrow').style.transform =
