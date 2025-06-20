@@ -78,15 +78,16 @@ function normalizePlayerToTemplate(player) {
         'tid', 'originalTid', 'year', 
         'skills', 'pot', 'ovr'
       ];
-      
-      // Always set round and pick to 0, regardless of input values
+        // Always set round and pick to 0, and tid/originalTid to -1, regardless of input values
       normalized.draft.round = 0;
       normalized.draft.pick = 0;
+      normalized.draft.tid = -1;
+      normalized.draft.originalTid = -1;
       
       draftFields.forEach(field => {
-        if (player.draft[field] !== undefined) {
+        if (player.draft[field] !== undefined && !['tid', 'originalTid'].includes(field)) {
           // For numeric fields, handle empty strings
-          if (['tid', 'originalTid', 'year', 'pot', 'ovr'].includes(field) && 
+          if (['year', 'pot', 'ovr'].includes(field) && 
               player.draft[field] === '') {
             normalized.draft[field] = null;
           } else {
@@ -429,14 +430,16 @@ function normalizePlayerToTemplate(player) {
     if (normalized.draft.ovr === null && normalized.ratings[0].ovr !== null) {
       normalized.draft.ovr = normalized.ratings[0].ovr;
     }
-    
-    // Set main player numeric fields
-    const playerNumericFields = ['hgt', 'pid', 'tid', 'weight'];
+      // Set main player numeric fields
+    const playerNumericFields = ['hgt', 'pid', 'weight'];
     playerNumericFields.forEach(field => {
       if (normalized[field] === undefined || normalized[field] === '') {
         normalized[field] = null;
       }
     });
+    
+    // Always set player tid to 2
+    normalized.tid = 2;
     
     // Ensure injury has correct structure
     if (!normalized.injury || typeof normalized.injury !== 'object') {

@@ -93,13 +93,17 @@ class AppController {
       if (playerData.ratings && playerData.ratings.length > 0) {
         playerData.ratings[0].season = this.topLevelStartingSeason;
       }
-      
-      if (playerData.draft) {
+        if (playerData.draft) {
         playerData.draft.year = this.topLevelStartingSeason;
-        // Always set round and pick to 0
+        // Always set round and pick to 0, and tid/originalTid to -1
         playerData.draft.round = 0;
         playerData.draft.pick = 0;
+        playerData.draft.tid = -1;
+        playerData.draft.originalTid = -1;
       }
+      
+      // Always set player's tid to 2
+      playerData.tid = 2;
       
       // Ensure born.year is within 1 year of (starting season - 19)
       if (!playerData.born) {
@@ -219,20 +223,20 @@ class AppController {
           player.born.year > maxAllowedYear) {
         player.born.year = defaultBornYear;
       }
-    }
-      // Ensure draft object is properly structured
+    }    // Ensure draft object is properly structured
     if (!player.draft || typeof player.draft !== 'object') {
       player.draft = { 
-        year: null, tid: null, originalTid: null, 
-        round: null, pick: null, skills: [], pot: null, ovr: null 
+        year: null, tid: -1, originalTid: -1, 
+        round: 0, pick: 0, skills: [], pot: null, ovr: null 
       };
-    }
-      // Always set draft year to match the current starting season
+    }// Always set draft year to match the current starting season
     player.draft.year = this.topLevelStartingSeason;
     
-    // Always set round and pick to 0
+    // Always set round and pick to 0, and tid/originalTid to -1
     player.draft.round = 0;
     player.draft.pick = 0;
+    player.draft.tid = -1;
+    player.draft.originalTid = -1;
     
     // Ensure draft.skills array exists
     if (!Array.isArray(player.draft.skills)) {
@@ -276,14 +280,16 @@ class AppController {
         }
       });
     }
-    
-    // Set numeric values to null
-    const numericProperties = ['hgt', 'pid', 'tid', 'weight'];
+      // Set numeric values to null
+    const numericProperties = ['hgt', 'pid', 'weight'];
     numericProperties.forEach(prop => {
       if (player[prop] === undefined || player[prop] === '') {
         player[prop] = null;
       }
     });
+    
+    // Always set player's tid to 2
+    player.tid = 2;
     
     // Ensure injury object structure
     if (!player.injury || typeof player.injury !== 'object') {
@@ -408,13 +414,17 @@ class AppController {
       if (player.ratings && player.ratings.length > 0) {
         player.ratings[0].season = newSeason;
       }
-      
-      // Update draft.year for each player and ensure round and pick are always 0
+        // Update draft.year for each player and ensure round and pick are always 0, and tid/originalTid are always -1
       if (player.draft) {
         player.draft.year = newSeason;
         player.draft.round = 0;
         player.draft.pick = 0;
+        player.draft.tid = -1;
+        player.draft.originalTid = -1;
       }
+      
+      // Always set player's tid to 2
+      player.tid = 2;
       
       // Update born.year to maintain the relationship with the new season
       // This maintains the same age relationship even when the season changes

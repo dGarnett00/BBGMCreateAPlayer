@@ -34,10 +34,9 @@ class UIManager {
       this.elements[id] = document.getElementById(id);
     });
   }
-
   setupEventListeners() {
     const eventMappings = [
-      { element: 'saveBtn', event: 'click', handler: () => this.eventBus.emit('player:save') },
+      { element: 'saveJsonBtn', event: 'click', handler: () => this.eventBus.emit('player:save') },
       { element: 'generateRandomPlayerBtn', event: 'click', handler: () => this.eventBus.emit('player:generateRandom', 1) },
       { element: 'jsonInput', event: 'change', handler: (e) => this.eventBus.emit('file:import', e.target.files[0]) }
     ];

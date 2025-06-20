@@ -121,6 +121,8 @@ const readOnlyKeys = [
     "draft.year",
     "draft.round",
     "draft.pick",
+    "draft.tid",
+    "draft.originalTid",
     "born.year"
 ];
 
@@ -130,10 +132,11 @@ function isReadOnly(key, path) {
     if (path.endsWith('.injury.type') || path === 'injury.type') return true;
     if (path.endsWith('.injury.gamesRemaining') || path === 'injury.gamesRemaining') return true;
     if (path.endsWith('.relatives') || path.match(/\.relatives\.\[\d+\]$/)) return true;
-    if (path === 'ratings.0.season' || path.endsWith('.ratings.0.season')) return true;
-    if (path === 'draft.year' || path.endsWith('.draft.year')) return true;
+    if (path === 'ratings.0.season' || path.endsWith('.ratings.0.season')) return true;    if (path === 'draft.year' || path.endsWith('.draft.year')) return true;
     if (path === 'draft.round' || path.endsWith('.draft.round')) return true;
     if (path === 'draft.pick' || path.endsWith('.draft.pick')) return true;
+    if (path === 'draft.tid' || path.endsWith('.draft.tid')) return true;
+    if (path === 'draft.originalTid' || path.endsWith('.draft.originalTid')) return true;
     if (path === 'born.year' || path.endsWith('.born.year')) return true;
     return false;
 }
