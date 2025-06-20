@@ -2,6 +2,45 @@
 
 import { DEFAULT_PLAYER_TEMPLATE } from './constants.js';
 
+function normalizePlayerToTemplate(player) {
+  // Deep clone the template
+  const normalized = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE));
+
+  function assignFields(templateObj, playerObj) {
+    for (const key in templateObj) {
+      if (playerObj && Object.prototype.hasOwnProperty.call(playerObj, key)) {
+        if (
+          typeof templateObj[key] === 'object' &&
+          templateObj[key] !== null &&
+          !Array.isArray(templateObj[key])
+        ) {
+          assignFields(templateObj[key], playerObj[key]);
+        } else if (Array.isArray(templateObj[key])) {
+          // If it's an array of objects (like ratings), map each item
+          if (
+            Array.isArray(playerObj[key]) &&
+            templateObj[key].length > 0 &&
+            typeof templateObj[key][0] === 'object'
+          ) {
+            normalized[key] = playerObj[key].map((item) => {
+              const normItem = JSON.parse(JSON.stringify(templateObj[key][0]));
+              assignFields(normItem, item);
+              return normItem;
+            });
+          } else {
+            normalized[key] = playerObj[key];
+          }
+        } else {
+          normalized[key] = playerObj[key];
+        }
+      }
+    }
+  }
+
+  assignFields(normalized, player);
+  return normalized;
+}
+
 class PlayerManager {
   constructor() {
     this.players = [];
@@ -85,17 +124,19 @@ class PlayerManager {
     let skipped = 0;
 
     importedPlayers.forEach(player => {
-      if (!this.validatePlayer(player)) {
+      // Normalize every imported player to the template
+      const normalizedPlayer = normalizePlayerToTemplate(player);
+      if (!this.validatePlayer(normalizedPlayer)) {
         skipped++;
         return;
       }
 
-      if (this.isDuplicate(player)) {
+      if (this.isDuplicate(normalizedPlayer)) {
         skipped++;
         return;
       }
 
-      this.players.push(player);
+      this.players.push(normalizedPlayer);
       added++;
     });
 

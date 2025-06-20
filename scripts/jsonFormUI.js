@@ -1,5 +1,7 @@
 // --- Artistic JSON Form UI Renderer ---
 
+import { DEFAULT_PLAYER_TEMPLATE } from './constants.js';
+
 let readOnlyOptionsMap = {};
 
 export function setReadOnlyOptionsMap(optionsMap) {
@@ -348,7 +350,9 @@ export function renderJsonForm(jsonObj, container) {
     form.style.color = "#e0e6ed";
     form.style.fontFamily = "'Segoe UI', 'Roboto', 'Arial', sans-serif";
     form.style.fontSize = "1.06em";
-    Object.entries(jsonObj).forEach(([key, value]) => {
+    // Only use fields from the template, never extra fields
+    const ordered = orderByTemplate(DEFAULT_PLAYER_TEMPLATE, jsonObj);
+    Object.entries(ordered).forEach(([key, value]) => {
         form.appendChild(renderField(key, value, key));
     });
     container.appendChild(form);
