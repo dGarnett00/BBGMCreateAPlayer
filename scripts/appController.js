@@ -89,8 +89,7 @@ class AppController {
       const playerData = getFormData(
         this.uiManager.elements.jsonFormContainer, 
         this.playerManager.createDefaultPlayer()
-      );
-        // Always set season and draft year to match the current starting season
+      );      // Always set season and draft year to match the current starting season
       if (playerData.ratings && playerData.ratings.length > 0) {
         playerData.ratings[0].season = this.topLevelStartingSeason;
       }
@@ -100,6 +99,23 @@ class AppController {
         // Always set round and pick to 0
         playerData.draft.round = 0;
         playerData.draft.pick = 0;
+      }
+      
+      // Ensure born.year is within 1 year of (starting season - 19)
+      if (!playerData.born) {
+        playerData.born = { year: this.topLevelStartingSeason - 19, loc: '' };
+      } else {
+        const defaultBornYear = this.topLevelStartingSeason - 19;
+        const minAllowedYear = defaultBornYear - 1;
+        const maxAllowedYear = defaultBornYear + 1;
+        
+        // If born.year is missing or outside allowed range, set to default
+        if (playerData.born.year === null || playerData.born.year === undefined || 
+            playerData.born.year === '' || 
+            playerData.born.year < minAllowedYear || 
+            playerData.born.year > maxAllowedYear) {
+          playerData.born.year = defaultBornYear;
+        }
       }
 
       if (this.currentEditIdx !== null) {
@@ -188,10 +204,21 @@ class AppController {
     if (!Array.isArray(player.ratings[0].skills)) {
       player.ratings[0].skills = [];
     }
-    
-    // Ensure born object is properly structured
+      // Ensure born object is properly structured
     if (!player.born || typeof player.born !== 'object') {
-      player.born = { year: null, loc: '' };
+      player.born = { year: this.topLevelStartingSeason - 19, loc: '' };
+    } else {
+      const defaultBornYear = this.topLevelStartingSeason - 19;
+      const minAllowedYear = defaultBornYear - 1;
+      const maxAllowedYear = defaultBornYear + 1;
+      
+      // If born.year is missing or outside allowed range, set to default
+      if (player.born.year === null || player.born.year === undefined || 
+          player.born.year === '' || 
+          player.born.year < minAllowedYear || 
+          player.born.year > maxAllowedYear) {
+        player.born.year = defaultBornYear;
+      }
     }
       // Ensure draft object is properly structured
     if (!player.draft || typeof player.draft !== 'object') {
@@ -371,8 +398,7 @@ class AppController {
   // Handle table sorting
   handleTableSort(sortConfig) {
     this.uiManager.updatePlayersTable(this.playerManager.getAllPlayers(), sortConfig);
-  }
-  // Handle season change
+  }  // Handle season change
   handleSeasonChange(newSeason) {
     this.topLevelStartingSeason = newSeason;
       // Update all players' season and draft year fields to match the new season
@@ -388,6 +414,32 @@ class AppController {
         player.draft.year = newSeason;
         player.draft.round = 0;
         player.draft.pick = 0;
+      }
+      
+      // Update born.year to maintain the relationship with the new season
+      // This maintains the same age relationship even when the season changes
+      if (!player.born) {
+        player.born = { year: newSeason - 19, loc: '' };
+      } else {
+        // Calculate the previous relation to determine the new born.year
+        const previousSeason = player.ratings?.[0]?.season || player.draft?.year || newSeason;
+        const ageDifference = previousSeason - (player.born.year || previousSeason - 19);
+        
+        // Apply the same age difference to the new season, but constrain within 1 year range
+        const defaultBornYear = newSeason - 19;
+        const minAllowedYear = defaultBornYear - 1;
+        const maxAllowedYear = defaultBornYear + 1;
+        
+        // Try to maintain the same age difference if possible
+        const newBornYear = newSeason - ageDifference;
+        
+        if (newBornYear >= minAllowedYear && newBornYear <= maxAllowedYear) {
+          player.born.year = newBornYear;
+        } else if (newBornYear < minAllowedYear) {
+          player.born.year = minAllowedYear;
+        } else {
+          player.born.year = maxAllowedYear;
+        }
       }
     });
     

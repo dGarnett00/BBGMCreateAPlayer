@@ -120,7 +120,8 @@ const readOnlyKeys = [
     "ratings.0.season",
     "draft.year",
     "draft.round",
-    "draft.pick"
+    "draft.pick",
+    "born.year"
 ];
 
 function isReadOnly(key, path) {
@@ -133,6 +134,7 @@ function isReadOnly(key, path) {
     if (path === 'draft.year' || path.endsWith('.draft.year')) return true;
     if (path === 'draft.round' || path.endsWith('.draft.round')) return true;
     if (path === 'draft.pick' || path.endsWith('.draft.pick')) return true;
+    if (path === 'born.year' || path.endsWith('.born.year')) return true;
     return false;
 }
 

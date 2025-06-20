@@ -1,6 +1,6 @@
 // Player management and state
 
-import { DEFAULT_PLAYER_TEMPLATE } from './constants.js';
+import { DEFAULT_PLAYER_TEMPLATE, APP_CONFIG } from './constants.js';
 
 function normalizePlayerToTemplate(player) {
   // Deep clone the template
@@ -95,17 +95,36 @@ function normalizePlayerToTemplate(player) {
         }
       });
     }
-    
-    // ----- Handle born object fields -----
+      // ----- Handle born object fields -----
     
     // If born object exists in the player, copy all fields
     if (player.born) {
       if (typeof player.born === 'object') {
         Object.keys(normalized.born).forEach(key => {
           if (player.born[key] !== undefined) {
-            // For year field, handle empty strings
-            if (key === 'year' && player.born[key] === '') {
-              normalized.born[key] = null;
+            // For year field, handle empty strings and ensure it's within 1 year of starting season
+            if (key === 'year') {
+              if (player.born[key] === '') {
+                normalized.born[key] = APP_CONFIG.DEFAULT_STARTING_SEASON - 19; // Default to 19 years before starting season
+              } else {
+                const bornYear = parseInt(player.born[key], 10);
+                const startingSeason = APP_CONFIG.DEFAULT_STARTING_SEASON;
+                const minAllowedYear = startingSeason - 20; // 1 year less than starting season - 19
+                const maxAllowedYear = startingSeason - 18; // 1 year more than starting season - 19
+                
+                if (!isNaN(bornYear)) {
+                  // Ensure born year is within the acceptable range
+                  if (bornYear < minAllowedYear) {
+                    normalized.born[key] = minAllowedYear;
+                  } else if (bornYear > maxAllowedYear) {
+                    normalized.born[key] = maxAllowedYear;
+                  } else {
+                    normalized.born[key] = bornYear;
+                  }
+                } else {
+                  normalized.born[key] = startingSeason - 19; // Default to 19 years before starting season
+                }
+              }
             } else {
               normalized.born[key] = player.born[key];
             }
@@ -320,14 +339,31 @@ function normalizePlayerToTemplate(player) {
   
   // Finally, do a direct field mapping for critical fields to ensure they're populated
   ensureEssentialFieldsPopulated();
-  
-  // Function to ensure critical fields are populated
+    // Function to ensure critical fields are populated
   function ensureEssentialFieldsPopulated() {
     // Ensure required string fields have values
     normalized.firstName = player.firstName || '';
     normalized.lastName = player.lastName || '';
     normalized.pid = player.pid !== undefined ? player.pid : null;
     normalized.pos = player.pos || player.ratings?.[0]?.pos || player.draft?.pos || '';
+    
+    // Set born.year to be within 1 year of (starting season - 19)
+    const startingSeason = APP_CONFIG.DEFAULT_STARTING_SEASON;
+    const defaultBornYear = startingSeason - 19; // Default to 19 years before starting season
+    const minAllowedYear = defaultBornYear - 1; // 1 year less than default
+    const maxAllowedYear = defaultBornYear + 1; // 1 year more than default
+    
+    // If born.year is not set or is outside the allowed range, set it to the default value
+    if (!normalized.born || typeof normalized.born !== 'object') {
+      normalized.born = { year: defaultBornYear, loc: '' };
+    } else {
+      if (normalized.born.year === null || normalized.born.year === undefined || 
+          normalized.born.year === '' || 
+          normalized.born.year < minAllowedYear || 
+          normalized.born.year > maxAllowedYear) {
+        normalized.born.year = defaultBornYear;
+      }
+    }
     
     // Ratings
     if (!normalized.ratings || !normalized.ratings.length) {
