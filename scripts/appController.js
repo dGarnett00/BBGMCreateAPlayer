@@ -1,0 +1,318 @@
+// Application controller - coordinates all modules
+
+import { APP_CONFIG, IMG_URL_OPTIONS } from './constants.js';
+import PlayerManager from './playerManager.js';
+import PlayerGenerator from './playerGenerator.js';
+import UIManager from './uiManager.js';
+import EventBus from './eventBus.js';
+import { renderJsonForm, getFormData, setReadOnlyOptionsMap } from './jsonFormUI.js';
+import * as jsonHandler from './jsonHandler.js';
+
+class AppController {
+  constructor() {
+    this.eventBus = new EventBus();
+    this.playerManager = new PlayerManager();
+    this.playerGenerator = new PlayerGenerator();
+    this.uiManager = new UIManager(this.playerManager, this.eventBus);
+    
+    this.currentPlayer = null;
+    this.currentEditIdx = null;
+    this.topLevelStartingSeason = APP_CONFIG.DEFAULT_STARTING_SEASON;
+    
+    this.init();
+  }
+
+  // Initialize the application
+  init() {
+    this.setupFormOptions();
+    this.setupEventListeners();
+    this.initializeUI();
+    this.renderDefaultForm();
+  }
+
+  // Setup form dropdown options
+  setupFormOptions() {
+    setReadOnlyOptionsMap({ imgURL: IMG_URL_OPTIONS });
+  }
+
+  // Setup event listeners
+  setupEventListeners() {
+    // Player events
+    this.eventBus.on('player:save', this.handleSavePlayer.bind(this));
+    this.eventBus.on('player:edit', this.handleEditPlayer.bind(this));
+    this.eventBus.on('player:delete', this.handleDeletePlayer.bind(this));
+    this.eventBus.on('player:generateRandom', this.handleGenerateRandomPlayers.bind(this));
+    
+    // Players collection events
+    this.eventBus.on('players:deleteSelected', this.handleDeleteSelectedPlayers.bind(this));
+    this.eventBus.on('players:exportSelected', this.handleExportSelectedPlayers.bind(this));
+    this.eventBus.on('players:undo', this.handleUndo.bind(this));
+    this.eventBus.on('players:redo', this.handleRedo.bind(this));
+    
+    // Table events
+    this.eventBus.on('table:sort', this.handleTableSort.bind(this));
+    
+    // File events
+    this.eventBus.on('file:import', this.handleFileImport.bind(this));
+  }
+
+  // Initialize UI components
+  initializeUI() {
+    // Create starting season input
+    this.uiManager.createStartingSeasonInput(
+      this.topLevelStartingSeason,
+      this.handleSeasonChange.bind(this)
+    );
+
+    // Create bulk generation buttons
+    this.uiManager.createBulkGenerationButtons();
+
+    // Create players table
+    this.playersTable = this.uiManager.createPlayersTable();
+
+    // Create batch action bar
+    this.batchActionBar = this.uiManager.createBatchActionBar();
+    document.querySelector('main').insertBefore(this.batchActionBar, this.playersTable);
+
+    // Initialize empty table
+    this.updateUI();
+  }
+
+  // Render default player form
+  renderDefaultForm() {
+    this.currentPlayer = this.playerManager.createDefaultPlayer();
+    renderJsonForm(this.currentPlayer, this.uiManager.elements.jsonFormContainer);
+  }
+
+  // Handle saving a player
+  async handleSavePlayer() {
+    try {
+      const playerData = getFormData(
+        this.uiManager.elements.jsonFormContainer, 
+        this.playerManager.createDefaultPlayer()
+      );
+
+      if (this.currentEditIdx !== null) {
+        // Update existing player
+        if (this.playerManager.updatePlayer(this.currentEditIdx, playerData)) {
+          this.uiManager.showAlert('Player updated successfully!');
+          this.currentEditIdx = null;
+        }
+      } else {
+        // Add new player
+        if (this.playerManager.addPlayer(playerData)) {
+          this.uiManager.showAlert('Player added successfully!');
+        }
+      }
+
+      this.updateUI();
+      this.renderDefaultForm();
+
+    } catch (error) {
+      console.error('Error saving player:', error);
+      this.uiManager.showAlert('Error saving player. Please check the form data.');
+    }
+  }
+
+  // Handle editing a player
+  handleEditPlayer(index) {
+    const player = this.playerManager.getPlayer(index);
+    if (player) {
+      renderJsonForm(player, this.uiManager.elements.jsonFormContainer);
+      this.currentEditIdx = index;
+    }
+  }
+
+  // Handle deleting a player
+  handleDeletePlayer(index) {
+    if (this.uiManager.showConfirm('Remove this player?')) {
+      this.playerManager.removePlayer(index);
+      this.updateUI();
+      
+      // Reset form if editing this player
+      if (this.currentEditIdx === index) {
+        this.renderDefaultForm();
+        this.currentEditIdx = null;
+      }
+    }
+  }
+
+  // Handle generating random players
+  async handleGenerateRandomPlayers(count) {
+    try {
+      const generatedPlayers = await this.playerGenerator.generateMultiplePlayers(count);
+      
+      if (generatedPlayers.length === 0) {
+        this.uiManager.showAlert('Failed to generate any players.');
+        return;
+      }
+
+      // Add all generated players
+      let addedCount = 0;
+      generatedPlayers.forEach(player => {
+        if (this.playerManager.addPlayer(player)) {
+          addedCount++;
+        }
+      });
+
+      this.updateUI();
+      
+      const message = `${addedCount} random player${addedCount > 1 ? 's' : ''} generated and added!`;
+      this.uiManager.showAlert(message);
+
+    } catch (error) {
+      console.error('Error generating players:', error);
+      this.uiManager.showAlert(error.message || 'Failed to generate players.');
+    }
+  }
+
+  // Handle deleting selected players
+  handleDeleteSelectedPlayers() {
+    const selectedIndices = this.uiManager.getSelectedPlayerIndices();
+    
+    if (selectedIndices.length === 0) {
+      this.uiManager.showAlert('No players selected.');
+      return;
+    }
+
+    if (this.uiManager.showConfirm(`Delete ${selectedIndices.length} selected players?`)) {
+      this.playerManager.deleteSelectedPlayers(selectedIndices);
+      this.updateUI();
+    }
+  }
+
+  // Handle exporting selected players
+  handleExportSelectedPlayers() {
+    const selectedIndices = this.uiManager.getSelectedPlayerIndices();
+    
+    if (selectedIndices.length === 0) {
+      this.uiManager.showAlert('No players selected.');
+      return;
+    }
+
+    const selectedPlayers = this.playerManager.getSelectedPlayers(selectedIndices);
+    const exportData = {
+      version: APP_CONFIG.TOP_LEVEL_VERSION,
+      startingSeason: this.topLevelStartingSeason,
+      players: selectedPlayers
+    };
+
+    jsonHandler.updateJson(exportData);
+    jsonHandler.exportJson();
+  }
+
+  // Handle undo operation
+  handleUndo() {
+    if (this.playerManager.undo()) {
+      this.updateUI();
+    }
+  }
+
+  // Handle redo operation
+  handleRedo() {
+    if (this.playerManager.redo()) {
+      this.updateUI();
+    }
+  }
+
+  // Handle table sorting
+  handleTableSort(sortConfig) {
+    this.uiManager.updatePlayersTable(this.playerManager.getAllPlayers(), sortConfig);
+  }
+
+  // Handle season change
+  handleSeasonChange(newSeason) {
+    this.topLevelStartingSeason = newSeason;
+    this.updateOutputJson();
+  }
+
+  // Handle file import
+  async handleFileImport(file) {
+    if (!file) return;
+
+    try {
+      await new Promise((resolve, reject) => {
+        jsonHandler.importJson(file, (error, data) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          // Process imported data
+          let importedPlayers = [];
+          
+          if (Array.isArray(data.players)) {
+            importedPlayers = data.players;
+          } else if (Array.isArray(data)) {
+            importedPlayers = data;
+          } else if (typeof data === 'object' && data !== null) {
+            importedPlayers = [data];
+          }
+
+          // Import players
+          const result = this.playerManager.importPlayers(importedPlayers);
+          
+          this.updateUI();
+
+          // Show import results
+          if (result.added === 0) {
+            this.uiManager.showAlert('No valid or unique players were imported.');
+          } else if (result.skipped > 0) {
+            this.uiManager.showAlert(
+              `${result.added} player(s) imported. ${result.skipped} duplicate or invalid player(s) skipped.`
+            );
+          } else {
+            this.uiManager.showAlert(`${result.added} player(s) imported successfully!`);
+          }
+
+          resolve();
+        });
+      });
+
+    } catch (error) {
+      console.error('Error importing file:', error);
+      this.uiManager.showAlert('Invalid JSON file or import error.');
+    }
+  }
+
+  // Update all UI components
+  updateUI() {
+    const players = this.playerManager.getAllPlayers();
+    
+    // Update main players table
+    this.uiManager.updatePlayersTable(players);
+    
+    // Update output section
+    this.updateOutputJson();
+    this.uiManager.renderPlayerTable(players);
+    this.uiManager.updateTotalPlayersDisplay(players.length);
+    this.uiManager.toggleOutputSection(players.length > 0);
+  }
+
+  // Update output JSON display
+  updateOutputJson() {
+    const outputData = {
+      version: APP_CONFIG.TOP_LEVEL_VERSION,
+      startingSeason: this.topLevelStartingSeason,
+      players: this.playerManager.getAllPlayers()
+    };
+
+    this.uiManager.updateOutputJson(outputData);
+  }
+
+  // Get current application state
+  getState() {
+    return {
+      playerCount: this.playerManager.getPlayerCount(),
+      startingSeason: this.topLevelStartingSeason,
+      currentEditIdx: this.currentEditIdx
+    };
+  }
+}
+
+// Initialize application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.draftProspectApp = new AppController();
+});
+
+export default AppController;

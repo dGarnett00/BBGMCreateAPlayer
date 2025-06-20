@@ -8,10 +8,10 @@
   <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <header>
+  <header role="banner">
     <h1>Draft Prospect Generator</h1>
   </header>
-  <main>
+  <main role="main">
     <section id="newEntrySection" class="card">
       <h2>Create a draft prospect. Scroll down to import/edit a draft class</h2>
       <div id="jsonFormContainer" class="mt-1"></div>
@@ -35,7 +35,7 @@
     <label for="jsonInput" class="file-label">Import JSON File:</label>
     <input type="file" id="jsonInput" accept=".json" aria-label="Import JSON File" />
   </main>
-  <footer>
+  <footer role="contentinfo">
     <p>&copy; 2025 Draft Prospect Generator</p>
   </footer>
   <script type="module" src="scripts/app.js"></script>

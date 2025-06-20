@@ -1,103 +1,103 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
-    color: #e3eafc;
-    min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  background: linear-gradient(120deg, #0f2027 0%, #2c5364 100%);
+  color: #e3eafc;
+  min-height: 100vh;
 }
 
 header, footer {
-    background: linear-gradient(90deg, #232526 0%, #414345 100%);
-    color: #fff;
-    padding: 1.2rem;
-    text-align: center;
-    letter-spacing: 2px;
-    font-weight: 700;
-    box-shadow: 0 2px 12px rgba(44, 83, 100, 0.18);
+  background: linear-gradient(90deg, #232526 0%, #414345 100%);
+  color: #fff;
+  padding: 1.2rem;
+  text-align: center;
+  letter-spacing: 2px;
+  font-weight: 700;
+  box-shadow: 0 2px 12px rgba(44, 83, 100, 0.18);
 }
 
 main {
-    padding: 2.5rem 1rem;
-    max-width: 950px;
-    margin: auto;
+  padding: 2.5rem 1rem;
+  max-width: 950px;
+  margin: auto;
 }
 
 .card {
-    background: rgba(30, 42, 61, 0.98);
-    border-radius: 22px;
-    box-shadow: 0 8px 40px 0 rgba(44, 83, 100, 0.18), 0 2px 8px rgba(44, 83, 100, 0.12);
-    padding: 2.7rem 2.2rem;
-    margin-bottom: 2.7rem;
-    position: relative;
-    overflow: visible;
-    border: 1.5px solid #2a6fa1;
-    transition: box-shadow 0.3s, border 0.3s;
+  background: rgba(30, 42, 61, 0.98);
+  border-radius: 22px;
+  box-shadow: 0 8px 40px 0 rgba(44, 83, 100, 0.18), 0 2px 8px rgba(44, 83, 100, 0.12);
+  padding: 2.7rem 2.2rem;
+  margin-bottom: 2.7rem;
+  position: relative;
+  overflow: visible;
+  border: 1.5px solid #2a6fa1;
+  transition: box-shadow 0.3s, border 0.3s;
 }
 
 .card:hover {
-    box-shadow: 0 16px 64px rgba(44, 83, 100, 0.28), 0 4px 16px rgba(44, 83, 100, 0.18);
-    border: 1.5px solid #4fc3f7;
+  box-shadow: 0 16px 64px rgba(44, 83, 100, 0.28), 0 4px 16px rgba(44, 83, 100, 0.18);
+  border: 1.5px solid #4fc3f7;
 }
 
 h1, h2 {
-    margin: 0 0 1.2rem 0;
-    color: #4fc3f7;
-    letter-spacing: 1.5px;
-    font-weight: 800;
-    text-shadow: 0 2px 8px #2a6fa1aa;
+  margin: 0 0 1.2rem 0;
+  color: #4fc3f7;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  text-shadow: 0 2px 8px #2a6fa1aa;
 }
 
 .primary-btn {
-    background: #1976d2;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5em 1.2em;
-    font-size: 1em;
-    font-weight: 700;
-    cursor: pointer;
-    margin-bottom: 0.5em;
-    transition: background 0.2s;
-    letter-spacing: 1px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1.2em;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 0.5em;
+  transition: background 0.2s;
+  letter-spacing: 1px;
 }
 
 .primary-btn:hover, .primary-btn:focus {
-    background: #1565c0;
-    outline: 2px solid #90caf9;
+  background: #1565c0;
+  outline: 2px solid #90caf9;
 }
 
 .output-json {
-    background: #181f2a;
-    color: #b3e5fc;
-    padding: 1.4rem;
-    border-radius: 12px;
-    font-family: 'Fira Mono', 'Consolas', monospace;
-    font-size: 1.08rem;
-    overflow-x: auto;
-    margin-top: 1.2rem;
-    border: 1.5px solid #4fc3f7;
-    box-shadow: 0 2px 12px #2a6fa144;
+  background: #181f2a;
+  color: #b3e5fc;
+  padding: 1.4rem;
+  border-radius: 12px;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 1.08rem;
+  overflow-x: auto;
+  margin-top: 1.2rem;
+  border: 1.5px solid #4fc3f7;
+  box-shadow: 0 2px 12px #2a6fa144;
 }
 
 .json-field {
-    margin-bottom: 1.7rem;
-    position: relative;
-    padding-left: 0.7rem;
-    border-left: 3px solid #232526;
-    transition: border-color 0.2s, background 0.2s;
-    background: rgba(44, 83, 100, 0.10);
-    border-radius: 6px;
+  margin-bottom: 1.7rem;
+  position: relative;
+  padding-left: 0.7rem;
+  border-left: 3px solid #232526;
+  transition: border-color 0.2s, background 0.2s;
+  background: rgba(44, 83, 100, 0.10);
+  border-radius: 6px;
 }
 
 .json-field:hover {
-    border-left: 3px solid #4fc3f7;
-    background: rgba(44, 83, 100, 0.18);
+  border-left: 3px solid #4fc3f7;
+  background: rgba(44, 83, 100, 0.18);
 }
 
 .json-field label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
     color: #4fc3f7;
     letter-spacing: 0.7px;
     font-size: 1.07rem;

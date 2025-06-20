@@ -3,51 +3,52 @@
 let readOnlyOptionsMap = {};
 
 export function setReadOnlyOptionsMap(optionsMap) {
-    readOnlyOptionsMap = optionsMap || {};
+  readOnlyOptionsMap = optionsMap || {};
 }
 
 function getOptions(name, path, value) {
-    let options = [];
-    if (readOnlyOptionsMap[path]) {
-        options = readOnlyOptionsMap[path];
-    } else if (readOnlyOptionsMap[name]) {
-        options = readOnlyOptionsMap[name];
-    } else {
-        options = [value];
-    }
-    return Array.from(new Set(options.filter(v => v !== undefined && v !== null)));
+  let options = [];
+  if (readOnlyOptionsMap[path]) {
+    options = readOnlyOptionsMap[path];
+  } else if (readOnlyOptionsMap[name]) {
+    options = readOnlyOptionsMap[name];
+  } else {
+    options = [value];
+  }
+  return Array.from(new Set(options.filter(v => v !== undefined && v !== null)));
 }
 
 function styleInput(input, readOnly = false) {
-    input.className = 'json-input';
-    input.style.borderRadius = "5px";
-    input.style.border = "1px solid #444";
-    input.style.padding = "0.4em 0.7em";
-    input.style.margin = "0.2em 0";
-    if (readOnly) {
-        input.style.background = "#232526";
-        input.style.color = "#b0c4de";
-        input.style.opacity = "0.7";
-    } else {
-        input.style.background = "#181a1b";
-        input.style.color = "#e0e6ed";
-    }
+  input.className = 'json-input';
+  input.style.borderRadius = "5px";
+  input.style.border = "1px solid #444";
+  input.style.padding = "0.4em 0.7em";
+  input.style.margin = "0.2em 0";
+  
+  if (readOnly) {
+    input.style.background = "#232526";
+    input.style.color = "#b0c4de";
+    input.style.opacity = "0.7";
+  } else {
+    input.style.background = "#181a1b";
+    input.style.color = "#e0e6ed";
+  }
 }
 
 function styleSelect(select) {
-    select.className = 'json-input';
-    select.style.background = "#232526";
-    select.style.color = "#b0c4de";
-    select.style.opacity = "0.95";
-    select.style.borderRadius = "5px";
-    select.style.border = "1px solid #444";
-    select.style.padding = "0.4em 0.7em";
-    select.style.margin = "0.2em 0";
+  select.className = 'json-input';
+  select.style.background = "#232526";
+  select.style.color = "#b0c4de";
+  select.style.opacity = "0.95";
+  select.style.borderRadius = "5px";
+  select.style.border = "1px solid #444";
+  select.style.padding = "0.4em 0.7em";
+  select.style.margin = "0.2em 0";
 }
 
 function createInput(name, value, path, readOnly = false) {
-    if (
-        (name === "version" || name === "startingSeason") &&
+  if (
+    (name === "version" || name === "startingSeason") &&
         (path === "version" || path === "startingSeason")
     ) {
         const input = document.createElement('input');
