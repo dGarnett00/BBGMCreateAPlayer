@@ -49,6 +49,9 @@ function styleSelect(select) {
 }
 
 function createInput(name, value, path, readOnly = false) {
+  // Create a unique ID for the input element based on the path
+  const inputId = `input_${path.replace(/\./g, '_')}`;
+
   if (
     (name === "version" || name === "startingSeason") &&
         (path === "version" || path === "startingSeason")
@@ -56,6 +59,7 @@ function createInput(name, value, path, readOnly = false) {
         const input = document.createElement('input');
         styleInput(input, true);
         input.name = path;
+        input.id = inputId;
         input.value = value;
         input.type = typeof value === 'number' ? 'number' : 'text';
         input.readOnly = true;
@@ -68,6 +72,7 @@ function createInput(name, value, path, readOnly = false) {
         const select = document.createElement('select');
         styleSelect(select);
         select.name = path;
+        select.id = inputId;
         select.disabled = false;
         getOptions(name, path, value).forEach(optVal => {
             const option = document.createElement('option');
@@ -83,6 +88,7 @@ function createInput(name, value, path, readOnly = false) {
         const select = document.createElement('select');
         styleSelect(select);
         select.name = path;
+        select.id = inputId;
         select.disabled = false;
         getOptions(name, path, value).forEach(optVal => {
             const option = document.createElement('option');
@@ -97,6 +103,7 @@ function createInput(name, value, path, readOnly = false) {
     const input = document.createElement('input');
     styleInput(input);
     input.name = path;
+    input.id = inputId;
     input.value = value;
     input.type = typeof value === 'number' ? 'number' : 'text';
     if (typeof value === 'boolean') {
@@ -145,32 +152,34 @@ function renderField(key, value, path) {
     const wrapper = document.createElement('div');
     wrapper.className = 'json-field';
     wrapper.style.marginBottom = "0.7em";
-    wrapper.style.transition = "background 0.2s";
-
-    if (path.endsWith('.injury.type') || path === 'injury.type') {
+    wrapper.style.transition = "background 0.2s";    if (path.endsWith('.injury.type') || path === 'injury.type') {
+        // Create a unique ID for the input element based on the path
+        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = path;
+        label.htmlFor = inputId;
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, "Healthy", path, true));
         return wrapper;
     }
     if (path.endsWith('.injury.gamesRemaining') || path === 'injury.gamesRemaining') {
+        // Create a unique ID for the input element based on the path
+        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = path;
+        label.htmlFor = inputId;
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, 0, path, true));
         return wrapper;
-    }
-
-    if (isReadOnly(key, path)) {
+    }    if (isReadOnly(key, path)) {
         if ((path.includes('.face') || path === 'face') && Array.isArray(value) && (value.length === 0 || typeof value[0] !== 'object')) {
+            // Create a unique ID for the input element based on the path
+            const inputId = `input_${path.replace(/\./g, '_')}`;
             const label = document.createElement('label');
             label.textContent = key;
-            label.htmlFor = path;
+            label.htmlFor = inputId;
             label.className = "json-label";
             wrapper.appendChild(label);
             wrapper.appendChild(createInput(key, value.join(', '), path, true));
@@ -180,9 +189,9 @@ function renderField(key, value, path) {
             return createCollapsibleSection(key, value, path, true);
         }
         if (typeof value === 'object' && value !== null) {
+            // For objects, the label doesn't need to reference a form element
             const label = document.createElement('label');
             label.textContent = key;
-            label.htmlFor = path;
             label.className = "json-label";
             wrapper.appendChild(label);
 
@@ -197,10 +206,11 @@ function renderField(key, value, path) {
             pre.textContent = JSON.stringify(value, null, 2);
             wrapper.appendChild(pre);
             return wrapper;
-        }
+        }        // Create a unique ID for the input element based on the path
+        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = path;
+        label.htmlFor = inputId;
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(createInput(key, value, path, true));
@@ -208,9 +218,11 @@ function renderField(key, value, path) {
     }
 
     if (Array.isArray(value) && (value.length === 0 || typeof value[0] !== 'object')) {
+        // Create a unique ID for the input element based on the path
+        const inputId = `input_${path.replace(/\./g, '_')}`;
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = path;
+        label.htmlFor = inputId;
         label.className = "json-label";
         wrapper.appendChild(label);
         const input = createInput(key, value.join(', '), path);
@@ -221,21 +233,21 @@ function renderField(key, value, path) {
 
     if ((Array.isArray(value) && value.length > 0) || (typeof value === 'object' && value !== null && Object.keys(value).length > 0)) {
         return createCollapsibleSection(key, value, path, false);
-    }
-
-    if (typeof value === 'object' && value !== null) {
+    }    if (typeof value === 'object' && value !== null) {
+        // For empty objects, the label doesn't need to reference a form element
         const label = document.createElement('label');
         label.textContent = key;
-        label.htmlFor = path;
         label.className = "json-label";
         wrapper.appendChild(label);
         wrapper.appendChild(document.createTextNode(Array.isArray(value) ? '[ ]' : '{ }'));
         return wrapper;
     }
 
+    // Create a unique ID for the input element based on the path
+    const inputId = `input_${path.replace(/\./g, '_')}`;
     const label = document.createElement('label');
     label.textContent = key;
-    label.htmlFor = path;
+    label.htmlFor = inputId;
     label.className = "json-label";
     wrapper.appendChild(label);
     wrapper.appendChild(createInput(key, value, path));

@@ -126,9 +126,8 @@ export const DEFAULT_PLAYER_TEMPLATE = {
       season: null,
       skills: []
     }
-  ],
-  relatives: [],
-  tid: null,
+  ],  relatives: [],
+  tid: -2,
   weight: null
 };
 

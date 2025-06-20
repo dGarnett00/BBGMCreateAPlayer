@@ -437,9 +437,8 @@ function normalizePlayerToTemplate(player) {
         normalized[field] = null;
       }
     });
-    
-    // Always set player tid to 2
-    normalized.tid = 2;
+      // Always set player tid to -2
+    normalized.tid = -2;
     
     // Ensure injury has correct structure
     if (!normalized.injury || typeof normalized.injury !== 'object') {
@@ -669,7 +668,6 @@ class PlayerManager {
     this.pushUndoState();
     return true;
   }
-
   // Statistics
   getPlayerCount() {
     return this.players.length;
@@ -680,7 +678,7 @@ class PlayerManager {
     const player = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE));
     player.draft.tid = -1;
     player.draft.originalTid = -1;
-    player.tid = -1;
+    player.tid = -2;
     return player;
   }
 

@@ -101,9 +101,8 @@ class AppController {
         playerData.draft.tid = -1;
         playerData.draft.originalTid = -1;
       }
-      
-      // Always set player's tid to 2
-      playerData.tid = 2;
+        // Always set player's tid to -2
+      playerData.tid = -2;
       
       // Ensure born.year is within 1 year of (starting season - 19)
       if (!playerData.born) {
@@ -287,9 +286,8 @@ class AppController {
         player[prop] = null;
       }
     });
-    
-    // Always set player's tid to 2
-    player.tid = 2;
+      // Always set player's tid to -2
+    player.tid = -2;
     
     // Ensure injury object structure
     if (!player.injury || typeof player.injury !== 'object') {
@@ -422,9 +420,8 @@ class AppController {
         player.draft.tid = -1;
         player.draft.originalTid = -1;
       }
-      
-      // Always set player's tid to 2
-      player.tid = 2;
+        // Always set player's tid to -2
+      player.tid = -2;
       
       // Update born.year to maintain the relationship with the new season
       // This maintains the same age relationship even when the season changes
