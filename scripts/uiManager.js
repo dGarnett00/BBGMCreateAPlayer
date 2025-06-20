@@ -69,16 +69,10 @@ class UIManager {
     this.setupSeasonChangeHandler(input, initialSeason, onSeasonChange);
     return { wrapper, input };
   }
-
   setupSeasonChangeHandler(input, initialSeason, onSeasonChange) {
-    let isLocked = false;
     input.addEventListener('change', () => {
-      if (!isLocked) {
-        const newSeason = Number(input.value) || initialSeason;
-        onSeasonChange(newSeason);
-        input.disabled = true;
-        isLocked = true;
-      }
+      const newSeason = Number(input.value) || initialSeason;
+      onSeasonChange(newSeason);
     });
   }
 

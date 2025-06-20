@@ -116,7 +116,9 @@ const readOnlyKeys = [
     "round",
     "pick",
     "injury.type",
-    "injury.gamesRemaining"
+    "injury.gamesRemaining",
+    "ratings.0.season",
+    "draft.year"
 ];
 
 function isReadOnly(key, path) {
@@ -125,6 +127,8 @@ function isReadOnly(key, path) {
     if (path.endsWith('.injury.type') || path === 'injury.type') return true;
     if (path.endsWith('.injury.gamesRemaining') || path === 'injury.gamesRemaining') return true;
     if (path.endsWith('.relatives') || path.match(/\.relatives\.\[\d+\]$/)) return true;
+    if (path === 'ratings.0.season' || path.endsWith('.ratings.0.season')) return true;
+    if (path === 'draft.year' || path.endsWith('.draft.year')) return true;
     return false;
 }
 

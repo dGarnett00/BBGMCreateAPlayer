@@ -83,7 +83,6 @@ class AppController {
     this.currentPlayer = this.playerManager.createDefaultPlayer();
     renderJsonForm(this.currentPlayer, this.uiManager.elements.jsonFormContainer);
   }
-
   // Handle saving a player
   async handleSavePlayer() {
     try {
@@ -91,6 +90,15 @@ class AppController {
         this.uiManager.elements.jsonFormContainer, 
         this.playerManager.createDefaultPlayer()
       );
+      
+      // Always set season and draft year to match the current starting season
+      if (playerData.ratings && playerData.ratings.length > 0) {
+        playerData.ratings[0].season = this.topLevelStartingSeason;
+      }
+      
+      if (playerData.draft) {
+        playerData.draft.year = this.topLevelStartingSeason;
+      }
 
       if (this.currentEditIdx !== null) {
         // Update existing player
@@ -153,12 +161,11 @@ class AppController {
     if (!player.ratings || !Array.isArray(player.ratings) || player.ratings.length === 0) {
       player.ratings = [{...player.ratings[0] || {}}];
     }
-    
-    // Ensure rating fields exist with null values for numeric fields
+      // Ensure rating fields exist with null values for numeric fields
     const ratingFields = [
       'hgt', 'stre', 'spd', 'jmp', 'endu', 'ins',
       'dnk', 'ft', 'fg', 'tp', 'diq', 'oiq',
-      'drb', 'pss', 'reb', 'fuzz', 'ovr', 'pot', 'season'
+      'drb', 'pss', 'reb', 'fuzz', 'ovr', 'pot'
     ];
     
     ratingFields.forEach(field => {
@@ -166,6 +173,9 @@ class AppController {
         player.ratings[0][field] = null;
       }
     });
+    
+    // Always set season field to match the current starting season
+    player.ratings[0].season = this.topLevelStartingSeason;
     
     // Ensure string fields have empty string values
     if (player.ratings[0].pos === undefined) {
@@ -181,14 +191,16 @@ class AppController {
     if (!player.born || typeof player.born !== 'object') {
       player.born = { year: null, loc: '' };
     }
-    
-    // Ensure draft object is properly structured
+      // Ensure draft object is properly structured
     if (!player.draft || typeof player.draft !== 'object') {
       player.draft = { 
         year: null, tid: null, originalTid: null, 
         round: null, pick: null, skills: [], pot: null, ovr: null 
       };
     }
+    
+    // Always set draft year to match the current starting season
+    player.draft.year = this.topLevelStartingSeason;
     
     // Ensure draft.skills array exists
     if (!Array.isArray(player.draft.skills)) {
@@ -355,10 +367,39 @@ class AppController {
   handleTableSort(sortConfig) {
     this.uiManager.updatePlayersTable(this.playerManager.getAllPlayers(), sortConfig);
   }
-
   // Handle season change
   handleSeasonChange(newSeason) {
     this.topLevelStartingSeason = newSeason;
+    
+    // Update all players' season and draft year fields to match the new season
+    const allPlayers = this.playerManager.getAllPlayers();
+    allPlayers.forEach(player => {
+      // Update ratings.season for each player
+      if (player.ratings && player.ratings.length > 0) {
+        player.ratings[0].season = newSeason;
+      }
+      
+      // Update draft.year for each player
+      if (player.draft) {
+        player.draft.year = newSeason;
+      }
+    });
+    
+    // If the player form is currently being displayed, update it to show the new season
+    if (this.currentEditIdx !== null) {
+      const player = this.playerManager.getPlayer(this.currentEditIdx);
+      if (player) {
+        // Make sure the form reflects the updated season values
+        this.ensureNestedObjects(player);
+        renderJsonForm(player, this.uiManager.elements.jsonFormContainer);
+      }
+    } else if (this.currentPlayer) {
+      // Update the form for a new player being created
+      this.currentPlayer.ratings[0].season = newSeason;
+      this.currentPlayer.draft.year = newSeason;
+      renderJsonForm(this.currentPlayer, this.uiManager.elements.jsonFormContainer);
+    }
+    
     this.updateOutputJson();
   }
 
