@@ -90,14 +90,16 @@ class AppController {
         this.uiManager.elements.jsonFormContainer, 
         this.playerManager.createDefaultPlayer()
       );
-      
-      // Always set season and draft year to match the current starting season
+        // Always set season and draft year to match the current starting season
       if (playerData.ratings && playerData.ratings.length > 0) {
         playerData.ratings[0].season = this.topLevelStartingSeason;
       }
       
       if (playerData.draft) {
         playerData.draft.year = this.topLevelStartingSeason;
+        // Always set round and pick to 0
+        playerData.draft.round = 0;
+        playerData.draft.pick = 0;
       }
 
       if (this.currentEditIdx !== null) {
@@ -198,9 +200,12 @@ class AppController {
         round: null, pick: null, skills: [], pot: null, ovr: null 
       };
     }
-    
-    // Always set draft year to match the current starting season
+      // Always set draft year to match the current starting season
     player.draft.year = this.topLevelStartingSeason;
+    
+    // Always set round and pick to 0
+    player.draft.round = 0;
+    player.draft.pick = 0;
     
     // Ensure draft.skills array exists
     if (!Array.isArray(player.draft.skills)) {
@@ -370,8 +375,7 @@ class AppController {
   // Handle season change
   handleSeasonChange(newSeason) {
     this.topLevelStartingSeason = newSeason;
-    
-    // Update all players' season and draft year fields to match the new season
+      // Update all players' season and draft year fields to match the new season
     const allPlayers = this.playerManager.getAllPlayers();
     allPlayers.forEach(player => {
       // Update ratings.season for each player
@@ -379,9 +383,11 @@ class AppController {
         player.ratings[0].season = newSeason;
       }
       
-      // Update draft.year for each player
+      // Update draft.year for each player and ensure round and pick are always 0
       if (player.draft) {
         player.draft.year = newSeason;
+        player.draft.round = 0;
+        player.draft.pick = 0;
       }
     });
     

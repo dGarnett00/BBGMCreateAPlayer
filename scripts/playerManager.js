@@ -70,20 +70,23 @@ function normalizePlayerToTemplate(player) {
     if (!normalized.ratings[0].skills || !normalized.ratings[0].skills.length) {
       normalized.ratings[0].skills = player.skills || player.draft?.skills || [];
     }
-    
-    // ----- Handle draft object fields -----
+      // ----- Handle draft object fields -----
     
     // If draft object exists in the player, copy all fields
     if (player.draft) {
       const draftFields = [
-        'round', 'pick', 'tid', 'originalTid', 'year', 
+        'tid', 'originalTid', 'year', 
         'skills', 'pot', 'ovr'
       ];
+      
+      // Always set round and pick to 0, regardless of input values
+      normalized.draft.round = 0;
+      normalized.draft.pick = 0;
       
       draftFields.forEach(field => {
         if (player.draft[field] !== undefined) {
           // For numeric fields, handle empty strings
-          if (['round', 'pick', 'tid', 'originalTid', 'year', 'pot', 'ovr'].includes(field) && 
+          if (['tid', 'originalTid', 'year', 'pot', 'ovr'].includes(field) && 
               player.draft[field] === '') {
             normalized.draft[field] = null;
           } else {
@@ -363,21 +366,24 @@ function normalizePlayerToTemplate(player) {
         normalized.born.loc = '';
       }
     }
-    
-    // Ensure draft structure
+      // Ensure draft structure
     if (!normalized.draft || typeof normalized.draft !== 'object') {
       normalized.draft = { 
         year: null, tid: null, originalTid: null, 
-        round: null, pick: null, skills: [], pot: null, ovr: null 
+        round: 0, pick: 0, skills: [], pot: null, ovr: null 
       };
     } else {
       // Set numeric fields to null if undefined or empty
-      const draftNumericFields = ['year', 'tid', 'originalTid', 'round', 'pick', 'pot', 'ovr'];
+      const draftNumericFields = ['year', 'tid', 'originalTid', 'pot', 'ovr'];
       draftNumericFields.forEach(field => {
         if (normalized.draft[field] === undefined || normalized.draft[field] === '') {
           normalized.draft[field] = null;
         }
       });
+      
+      // Always set round and pick to 0, regardless of input values
+      normalized.draft.round = 0;
+      normalized.draft.pick = 0;
     }
     
     // Copy over values to draft if they exist elsewhere
