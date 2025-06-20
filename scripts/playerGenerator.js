@@ -1,6 +1,7 @@
 // Player generation from draft files
 
 import { DRAFT_FILES, APP_CONFIG } from './constants.js';
+import { mixPlayers } from './playerTransform.js';
 
 class PlayerGenerator {
   constructor() {
@@ -70,23 +71,17 @@ class PlayerGenerator {
 
     return generatedPlayers;
   }
-
   // Create a merged player from random selection
   createMergedPlayer(sourcePlayersArray) {
     if (sourcePlayersArray.length < APP_CONFIG.MIN_PLAYERS_FOR_GENERATION) {
       return null;
     }
 
-    // Select 10 random players
-    const selectedPlayers = this.selectRandomPlayers(sourcePlayersArray, 10);
+    // Select 5 random players to mix
+    const selectedPlayers = this.selectRandomPlayers(sourcePlayersArray, 5);
     
-    // Start with the first player as base
-    const mergedPlayer = JSON.parse(JSON.stringify(selectedPlayers[0]));
-
-    // Merge characteristics from other players
-    for (let i = 1; i < selectedPlayers.length; i++) {
-      this.mergePlayerData(mergedPlayer, selectedPlayers[i]);
-    }
+    // Use the new mixPlayers function to create a merged player
+    const mergedPlayer = mixPlayers(...selectedPlayers);
 
     // Randomize key identifying fields
     this.randomizePlayerIdentity(mergedPlayer, selectedPlayers);
@@ -96,7 +91,6 @@ class PlayerGenerator {
 
     return mergedPlayer;
   }
-
   // Select random players without duplicates
   selectRandomPlayers(playersArray, count) {
     const selected = [];
@@ -112,30 +106,6 @@ class PlayerGenerator {
     }
 
     return selected;
-  }
-
-  // Merge data from source player into target player
-  mergePlayerData(targetPlayer, sourcePlayer) {
-    for (const key in sourcePlayer) {
-      if (typeof sourcePlayer[key] === 'object' && sourcePlayer[key] !== null && !Array.isArray(sourcePlayer[key])) {
-        // Handle nested objects
-        for (const subKey in sourcePlayer[key]) {
-          if (Math.random() < 0.5) {
-            targetPlayer[key][subKey] = sourcePlayer[key][subKey];
-          }
-        }
-      } else if (Array.isArray(sourcePlayer[key])) {
-        // Handle arrays
-        if (Math.random() < 0.5) {
-          targetPlayer[key] = JSON.parse(JSON.stringify(sourcePlayer[key]));
-        }
-      } else {
-        // Handle primitive values
-        if (Math.random() < 0.5) {
-          targetPlayer[key] = sourcePlayer[key];
-        }
-      }
-    }
   }
 
   // Randomize player identity fields
