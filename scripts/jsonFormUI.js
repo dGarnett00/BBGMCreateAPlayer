@@ -370,23 +370,182 @@ function setValueAtPath(obj, path, value) {
     curr[keys[keys.length - 1]] = value;
 }
 
+// Enhance orderByTemplate to handle different data structures better
 function orderByTemplate(template, data) {
+    if (!data) {
+        return JSON.parse(JSON.stringify(template));
+    }
+    
     if (Array.isArray(template)) {
-        return (data || []).map((item, idx) =>
-            orderByTemplate(template[0], item)
-        );
+        if (!Array.isArray(data) || data.length === 0) {
+            return [orderByTemplate(template[0], {})];
+        }
+        return data.map((item) => orderByTemplate(template[0], item));
     } else if (template && typeof template === "object") {
         const ordered = {};
+        
+        // First, copy the template structure
         Object.keys(template).forEach(key => {
             if (data && Object.prototype.hasOwnProperty.call(data, key)) {
-                ordered[key] = orderByTemplate(template[key], data[key]);
+                // Special case for nested objects that need thorough processing
+                if (key === 'born' && typeof data[key] === 'object') {
+                    ordered[key] = { 
+                        year: data[key].year || template[key].year || '',
+                        loc: data[key].loc || template[key].loc || ''
+                    };
+                } 
+                else if (key === 'face' && typeof data[key] === 'object') {
+                    // Handle face object specially to keep deep structure
+                    ordered[key] = deepMerge(template[key], data[key]);
+                }
+                else if (key === 'ratings' && Array.isArray(data[key])) {
+                    // Ensure ratings array has at least one rating object
+                    if (data[key].length > 0) {
+                        ordered[key] = [
+                            {
+                                ...template[key][0],
+                                ...data[key][0],
+                                // Make sure skills is an array
+                                skills: Array.isArray(data[key][0].skills) ? data[key][0].skills : []
+                            }
+                        ];
+                    } else {
+                        ordered[key] = [{ ...template[key][0] }];
+                    }
+                }
+                else if (key === 'draft' && typeof data[key] === 'object') {
+                    // Handle draft data carefully
+                    ordered[key] = {
+                        ...template[key],
+                        ...data[key]
+                    };
+                    
+                    // Ensure specific fields are set
+                    if (!ordered[key].tid) ordered[key].tid = -1;
+                    if (!ordered[key].originalTid) ordered[key].originalTid = -1;
+                    if (!ordered[key].skills) ordered[key].skills = [];
+                }
+                else {
+                    // Regular nested field processing
+                    ordered[key] = orderByTemplate(template[key], data[key]);
+                }
             } else {
-                ordered[key] = template[key];
+                // For missing fields, look in common alternative locations
+                if (key === 'pos' && data) {
+                    // Look for position in various places with more thorough checks
+                    ordered[key] = findValueInPaths(data, [
+                        'pos', 
+                        'ratings.0.pos', 
+                        'draft.pos'
+                    ]) || template[key];
+                } else if ((key === 'ovr' || key === 'pot') && data) {
+                    // Look for ovr or pot in various places with more thorough checks
+                    ordered[key] = findValueInPaths(data, [
+                        `${key}`, 
+                        `ratings.0.${key}`, 
+                        `draft.${key}`
+                    ]) || template[key];
+                } else if (key === 'skills' && data) {
+                    // Look for skills in various places with more thorough checks
+                    ordered[key] = findValueInPaths(data, [
+                        'skills', 
+                        'ratings.0.skills', 
+                        'draft.skills'
+                    ]) || template[key];
+                } else if (key === 'firstName' || key === 'lastName') {
+                    // Make sure first and last name are properly extracted
+                    ordered[key] = data[key] || '';
+                } else if (key === 'college') {
+                    // Make sure college is properly extracted
+                    ordered[key] = data[key] || '';
+                } else if (key === 'pid') {
+                    // Make sure pid is properly extracted
+                    ordered[key] = data[key] || '';
+                } else {
+                    ordered[key] = template[key];
+                }
             }
         });
         return ordered;
     }
     return data;
+}
+
+// Helper function to find values in common paths
+function findValueInPaths(obj, paths) {
+    for (const path of paths) {
+        const value = getValueByPath(obj, path);
+        if (value !== undefined && value !== null && value !== '') {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+// Utility function to deep merge objects
+function deepMerge(target, source) {
+    // If source is not an object or is null, return target
+    if (!source || typeof source !== 'object' || Array.isArray(source)) {
+        return target;
+    }
+    
+    const output = {...target};
+    
+    Object.keys(source).forEach(key => {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            // If value is an object, recurse
+            if (output[key] && typeof output[key] === 'object' && !Array.isArray(output[key])) {
+                output[key] = deepMerge(output[key], source[key]);
+            } else {
+                output[key] = {...source[key]};
+            }
+        } else if (Array.isArray(source[key])) {
+            // If value is an array, copy it
+            output[key] = [...source[key]];
+        } else if (source[key] !== undefined) {
+            // For all other values, copy directly
+            output[key] = source[key];
+        }
+    });
+    
+    return output;
+}
+
+// Helper function to get a value by a dot-notation path
+function getValueByPath(obj, path) {
+    if (!obj || !path) {
+        return undefined;
+    }
+    
+    const parts = path.split('.');
+    let current = obj;
+    
+    for (const part of parts) {
+        if (current === null || current === undefined) {
+            return undefined;
+        }
+        
+        // Handle array notation like ratings[0] as well as ratings.0
+        const arrayMatch = part.match(/^(\w+)\[(\d+)\]$/);
+        if (arrayMatch) {
+            const arrayName = arrayMatch[1];
+            const arrayIndex = parseInt(arrayMatch[2], 10);
+            
+            if (!current[arrayName] || !Array.isArray(current[arrayName])) {
+                return undefined;
+            }
+            
+            current = current[arrayName][arrayIndex];
+        } else if (part.match(/^\d+$/)) {
+            // Array index
+            current = current[parseInt(part, 10)];
+        } else {
+            // Object property
+            current = current[part];
+        }
+    }
+    
+    return current;
 }
 
 export function getFormData(container, template) {

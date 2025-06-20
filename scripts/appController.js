@@ -112,14 +112,83 @@ class AppController {
       console.error('Error saving player:', error);
       this.uiManager.showAlert('Error saving player. Please check the form data.');
     }
-  }
-
-  // Handle editing a player
+  }  // Handle editing a player
   handleEditPlayer(index) {
     const player = this.playerManager.getPlayer(index);
     if (player) {
-      renderJsonForm(player, this.uiManager.elements.jsonFormContainer);
+      console.log("Original player data for edit:", JSON.parse(JSON.stringify(player)));
+      
+      // Normalize the player data to ensure all required fields exist
+      const normalizedPlayer = this.playerManager.normalizePlayerForEditing(player);
+      
+      // Log the normalized player to help debugging
+      console.log("Normalized player data for edit:", JSON.parse(JSON.stringify(normalizedPlayer)));
+      
+      // Handle specific deep objects that might need special treatment
+      this.ensureNestedObjects(normalizedPlayer);
+      
+      // Now render the form with properly structured data
+      renderJsonForm(normalizedPlayer, this.uiManager.elements.jsonFormContainer);
       this.currentEditIdx = index;
+      
+      // Scroll to the top of the form
+      this.uiManager.elements.jsonFormContainer.scrollIntoView({ behavior: 'smooth' });
+      
+      // Log form field values for debugging
+      setTimeout(() => {
+        console.log("Form field values:", 
+          Array.from(this.uiManager.elements.jsonFormContainer.querySelectorAll('input, select'))
+            .filter(el => el.name) // Only log elements with names
+            .reduce((acc, el) => {
+              acc[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+              return acc;
+            }, {})
+        );
+      }, 100);
+    }
+  }
+  
+  // Helper method to ensure all nested objects are properly initialized
+  ensureNestedObjects(player) {
+    // Ensure ratings array is properly structured
+    if (!player.ratings || !Array.isArray(player.ratings) || player.ratings.length === 0) {
+      player.ratings = [{...player.ratings[0] || {}}];
+    }
+    
+    // Ensure rating fields exist
+    const ratingFields = [
+      'hgt', 'stre', 'spd', 'jmp', 'endu', 'ins',
+      'dnk', 'ft', 'fg', 'tp', 'diq', 'oiq',
+      'drb', 'pss', 'reb', 'pos', 'ovr', 'pot'
+    ];
+    
+    ratingFields.forEach(field => {
+      if (player.ratings[0][field] === undefined) {
+        player.ratings[0][field] = '';
+      }
+    });
+    
+    // Ensure skills array exists
+    if (!Array.isArray(player.ratings[0].skills)) {
+      player.ratings[0].skills = [];
+    }
+    
+    // Ensure born object is properly structured
+    if (!player.born || typeof player.born !== 'object') {
+      player.born = { year: '', loc: '' };
+    }
+    
+    // Ensure draft object is properly structured
+    if (!player.draft || typeof player.draft !== 'object') {
+      player.draft = { 
+        year: '', tid: -1, originalTid: -1, 
+        round: 0, pick: 0, skills: [], pot: '', ovr: '' 
+      };
+    }
+    
+    // Ensure draft.skills array exists
+    if (!Array.isArray(player.draft.skills)) {
+      player.draft.skills = [];
     }
   }
 
