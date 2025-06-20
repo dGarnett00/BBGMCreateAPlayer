@@ -9,74 +9,127 @@ export const APP_CONFIG = {
 };
 
 export const DEFAULT_PLAYER_TEMPLATE = {
-  born: { year: "", loc: "" },
+  born: {
+    year: null,
+    loc: ""
+  },
   college: "",
   draft: {
-    year: "",
-    tid: -1,
-    originalTid: -1,
-    round: 0,
-    pick: 0,
-    skills: [],
-    pot: "",
-    ovr: ""
+    round: null,
+    pick: null,
+    tid: null,
+    originalTid: null,
+    year: null,
+    pot: null,
+    ovr: null,
+    skills: []
   },
   face: {
-    fatness: "",
-    teamColors: [],
-    hairBg: { id: "" },
-    body: { id: "", color: "", size: "" },
-    jersey: { id: "" },
-    ear: { id: "", size: "" },
-    head: { id: "", shave: "" },
-    eyeLine: { id: "" },
-    smileLine: { id: "", size: "" },
-    miscLine: { id: "" },
-    facialHair: { id: "" },
-    eye: { id: "", angle: "" },
-    eyebrow: { id: "", angle: "" },
-    hair: { id: "", color: "", flip: "" },
-    mouth: { id: "", flip: "" },
-    nose: { id: "", flip: "", size: "" },
-    glasses: { id: "" },
-    accessories: { id: "" }
+    fatness: null,
+    teamColors: [
+      "",
+      "",
+      ""
+    ],
+    hairBg: {
+      id: ""
+    },
+    body: {
+      id: "",
+      color: "",
+      size: null
+    },
+    jersey: {
+      id: ""
+    },
+    ear: {
+      id: "",
+      size: null
+    },
+    head: {
+      id: "",
+      shave: ""
+    },
+    eyeLine: {
+      id: ""
+    },
+    smileLine: {
+      id: "",
+      size: null
+    },
+    miscLine: {
+      id: ""
+    },
+    facialHair: {
+      id: ""
+    },
+    eye: {
+      id: "",
+      angle: null
+    },
+    eyebrow: {
+      id: "",
+      angle: null
+    },
+    hair: {
+      id: "",
+      color: "",
+      flip: null
+    },
+    mouth: {
+      id: "",
+      flip: null
+    },
+    nose: {
+      id: "",
+      flip: null,
+      size: null
+    },
+    glasses: {
+      id: ""
+    },
+    accessories: {
+      id: ""
+    }
   },
   firstName: "",
-  hgt: "",
+  hgt: null,
   imgURL: "",
-  injury: { type: "", gamesRemaining: "" },
+  injury: {
+    type: "",
+    gamesRemaining: null
+  },
   injuries: [],
   lastName: "",
-  pid: "",
-  pos: "",
+  pid: null,
   ratings: [
     {
-      hgt: "",
-      stre: "",
-      spd: "",
-      jmp: "",
-      endu: "",
-      ins: "",
-      dnk: "",
-      ft: "",
-      fg: "",
-      tp: "",
-      diq: "",
-      oiq: "",
-      drb: "",
-      pss: "",
-      reb: "",
-      season: "",
+      stre: null,
+      spd: null,
+      jmp: null,
+      endu: null,
+      ins: null,
+      dnk: null,
+      ft: null,
+      fg: null,
+      tp: null,
+      oiq: null,
+      diq: null,
+      drb: null,
+      pss: null,
+      reb: null,
+      hgt: null,
+      fuzz: null,
+      ovr: null,
       pos: "",
-      fuzz: "",
-      skills: [],
-      ovr: "",
-      pot: ""
+      pot: null,
+      season: null,
+      skills: []
     }
   ],
   relatives: [],
-  tid: -1,
-  weight: ""
+  tid: null,
+  weight: null
 };
 
 export const IMG_URL_OPTIONS = [

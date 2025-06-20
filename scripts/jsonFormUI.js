@@ -350,12 +350,46 @@ export function renderJsonForm(jsonObj, container) {
     form.style.color = "#e0e6ed";
     form.style.fontFamily = "'Segoe UI', 'Roboto', 'Arial', sans-serif";
     form.style.fontSize = "1.06em";
+    
+    // Convert null values to empty strings for form fields
+    const preparedObj = prepareObjectForForm(jsonObj);
+    
     // Only use fields from the template, never extra fields
-    const ordered = orderByTemplate(DEFAULT_PLAYER_TEMPLATE, jsonObj);
+    const ordered = orderByTemplate(DEFAULT_PLAYER_TEMPLATE, preparedObj);
     Object.entries(ordered).forEach(([key, value]) => {
         form.appendChild(renderField(key, value, key));
     });
     container.appendChild(form);
+}
+
+// Helper function to prepare object for form rendering
+function prepareObjectForForm(obj) {
+    if (!obj) return obj;
+    
+    // Clone the object to avoid modifying the original
+    const result = JSON.parse(JSON.stringify(obj));
+    
+    // Function to recursively convert null values to empty strings
+    function convertNullsToEmptyStrings(object) {
+        if (!object || typeof object !== 'object') return;
+        
+        Object.keys(object).forEach(key => {
+            if (object[key] === null) {
+                object[key] = '';
+            } else if (Array.isArray(object[key])) {
+                object[key].forEach(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        convertNullsToEmptyStrings(item);
+                    }
+                });
+            } else if (typeof object[key] === 'object') {
+                convertNullsToEmptyStrings(object[key]);
+            }
+        });
+    }
+    
+    convertNullsToEmptyStrings(result);
+    return result;
 }
 
 function setValueAtPath(obj, path, value) {
@@ -553,18 +587,119 @@ export function getFormData(container, template) {
     const data = {};
     if (!form) return data;
 
+    // First, collect all form values
     Array.from(form.elements).forEach(el => {
         if (!el.name) return;
         let val = el.type === 'checkbox' ? el.checked : el.value;
         if (el.placeholder === 'Comma separated values') {
             val = el.value.split(',').map(s => s.trim()).filter(Boolean);
         } else if (el.type === 'number') {
-            val = Number(val);
+            val = val === '' ? null : Number(val);
         }
         if (val === 'true') val = true;
         if (val === 'false') val = false;
         setValueAtPath(data, el.name, val);
     });
+    
+    // Order data according to template
+    const ordered = orderByTemplate(template, data);
+    
+    // Post-process to convert empty strings to null for numeric fields
+    convertEmptyStringsToNull(ordered);
+    
+    return ordered;
+}
 
-    return orderByTemplate(template, data);
+// Helper function to convert empty strings to null for numeric fields
+function convertEmptyStringsToNull(obj) {
+    if (!obj || typeof obj !== 'object') return;
+    
+    // Define paths that should be null when empty
+    const numericPaths = [
+        'hgt', 'pid', 'tid', 'weight',
+        'born.year',
+        'draft.round', 'draft.pick', 'draft.tid', 'draft.originalTid', 'draft.year', 'draft.pot', 'draft.ovr',
+        'face.fatness',
+        'face.body.size', 'face.ear.size', 'face.smileLine.size',
+        'face.eye.angle', 'face.eyebrow.angle', 'face.hair.flip',
+        'face.mouth.flip', 'face.nose.flip', 'face.nose.size',
+        'injury.gamesRemaining'
+    ];
+    
+    // Add all rating numeric fields
+    if (obj.ratings && obj.ratings.length > 0) {
+        const ratingNumericFields = [
+            'stre', 'spd', 'jmp', 'endu', 'ins',
+            'dnk', 'ft', 'fg', 'tp', 'oiq', 'diq',
+            'drb', 'pss', 'reb', 'hgt', 'fuzz',
+            'ovr', 'pot', 'season'
+        ];
+        
+        ratingNumericFields.forEach(field => {
+            numericPaths.push(`ratings.0.${field}`);
+        });
+    }
+    
+    // Function to get value by path
+    function getValueByPath(obj, path) {
+        const parts = path.split('.');
+        let current = obj;
+        
+        for (const part of parts) {
+            if (current === null || current === undefined) {
+                return undefined;
+            }
+            
+            if (part.match(/^\d+$/)) {
+                // Array index
+                current = current[parseInt(part, 10)];
+            } else {
+                // Object property
+                current = current[part];
+            }
+        }
+        
+        return current;
+    }
+    
+    // Function to set value by path
+    function setValueByPath(obj, path, value) {
+        const parts = path.split('.');
+        let current = obj;
+        
+        for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (part.match(/^\d+$/)) {
+                const index = parseInt(part, 10);
+                if (!Array.isArray(current) || current.length <= index) {
+                    return;  // Path doesn't exist
+                }
+                current = current[index];
+            } else {
+                if (current[part] === undefined) {
+                    return;  // Path doesn't exist
+                }
+                current = current[part];
+            }
+        }
+        
+        const lastPart = parts[parts.length - 1];
+        if (lastPart.match(/^\d+$/)) {
+            const index = parseInt(lastPart, 10);
+            if (Array.isArray(current) && current.length > index) {
+                current[index] = value;
+            }
+        } else {
+            current[lastPart] = value;
+        }
+    }
+    
+    // Check and convert all numeric paths
+    numericPaths.forEach(path => {
+        const value = getValueByPath(obj, path);
+        if (value === '') {
+            setValueByPath(obj, path, null);
+        }
+    });
+      return obj;
 }

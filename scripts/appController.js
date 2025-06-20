@@ -147,26 +147,30 @@ class AppController {
       }, 100);
     }
   }
-  
-  // Helper method to ensure all nested objects are properly initialized
+    // Helper method to ensure all nested objects are properly initialized
   ensureNestedObjects(player) {
     // Ensure ratings array is properly structured
     if (!player.ratings || !Array.isArray(player.ratings) || player.ratings.length === 0) {
       player.ratings = [{...player.ratings[0] || {}}];
     }
     
-    // Ensure rating fields exist
+    // Ensure rating fields exist with null values for numeric fields
     const ratingFields = [
       'hgt', 'stre', 'spd', 'jmp', 'endu', 'ins',
       'dnk', 'ft', 'fg', 'tp', 'diq', 'oiq',
-      'drb', 'pss', 'reb', 'pos', 'ovr', 'pot'
+      'drb', 'pss', 'reb', 'fuzz', 'ovr', 'pot', 'season'
     ];
     
     ratingFields.forEach(field => {
       if (player.ratings[0][field] === undefined) {
-        player.ratings[0][field] = '';
+        player.ratings[0][field] = null;
       }
     });
+    
+    // Ensure string fields have empty string values
+    if (player.ratings[0].pos === undefined) {
+      player.ratings[0].pos = '';
+    }
     
     // Ensure skills array exists
     if (!Array.isArray(player.ratings[0].skills)) {
@@ -175,20 +179,83 @@ class AppController {
     
     // Ensure born object is properly structured
     if (!player.born || typeof player.born !== 'object') {
-      player.born = { year: '', loc: '' };
+      player.born = { year: null, loc: '' };
     }
     
     // Ensure draft object is properly structured
     if (!player.draft || typeof player.draft !== 'object') {
       player.draft = { 
-        year: '', tid: -1, originalTid: -1, 
-        round: 0, pick: 0, skills: [], pot: '', ovr: '' 
+        year: null, tid: null, originalTid: null, 
+        round: null, pick: null, skills: [], pot: null, ovr: null 
       };
     }
     
     // Ensure draft.skills array exists
     if (!Array.isArray(player.draft.skills)) {
       player.draft.skills = [];
+    }
+    
+    // Ensure face object structure matches template
+    if (!player.face || typeof player.face !== 'object') {
+      player.face = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE.face));
+    } else {
+      // Ensure teamColors is an array with 3 elements
+      if (!Array.isArray(player.face.teamColors) || player.face.teamColors.length < 3) {
+        player.face.teamColors = ["", "", ""];
+      }
+      
+      // Ensure all numeric values are properly set to null instead of empty strings
+      const numericFaceProperties = [
+        'fatness', 
+        'body.size', 
+        'ear.size', 
+        'smileLine.size', 
+        'eye.angle', 
+        'eyebrow.angle', 
+        'hair.flip', 
+        'mouth.flip', 
+        'nose.flip', 
+        'nose.size'
+      ];
+      
+      numericFaceProperties.forEach(prop => {
+        const parts = prop.split('.');
+        if (parts.length === 1) {
+          if (player.face[parts[0]] === undefined || player.face[parts[0]] === '') {
+            player.face[parts[0]] = null;
+          }
+        } else if (parts.length === 2) {
+          if (!player.face[parts[0]]) player.face[parts[0]] = {};
+          if (player.face[parts[0]][parts[1]] === undefined || player.face[parts[0]][parts[1]] === '') {
+            player.face[parts[0]][parts[1]] = null;
+          }
+        }
+      });
+    }
+    
+    // Set numeric values to null
+    const numericProperties = ['hgt', 'pid', 'tid', 'weight'];
+    numericProperties.forEach(prop => {
+      if (player[prop] === undefined || player[prop] === '') {
+        player[prop] = null;
+      }
+    });
+    
+    // Ensure injury object structure
+    if (!player.injury || typeof player.injury !== 'object') {
+      player.injury = { type: '', gamesRemaining: null };
+    } else if (player.injury.gamesRemaining === undefined || player.injury.gamesRemaining === '') {
+      player.injury.gamesRemaining = null;
+    }
+    
+    // Ensure injuries array exists
+    if (!Array.isArray(player.injuries)) {
+      player.injuries = [];
+    }
+    
+    // Ensure relatives array exists
+    if (!Array.isArray(player.relatives)) {
+      player.relatives = [];
     }
   }
 

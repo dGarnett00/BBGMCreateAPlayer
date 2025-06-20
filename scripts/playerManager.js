@@ -5,6 +5,7 @@ import { DEFAULT_PLAYER_TEMPLATE } from './constants.js';
 function normalizePlayerToTemplate(player) {
   // Deep clone the template
   const normalized = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE));
+  
   // Special case handling for common fields that may be in different places
   function handleSpecialFields() {
     // ----- Handle all player basic fields -----
@@ -25,15 +26,23 @@ function normalizePlayerToTemplate(player) {
     // Copy all possible rating fields from player.ratings[0] if it exists
     if (player.ratings && player.ratings[0]) {
       const ratingFields = [
-        'hgt', 'stre', 'spd', 'jmp', 'endu', 'ins',
-        'dnk', 'ft', 'fg', 'tp', 'diq', 'oiq',
-        'drb', 'pss', 'reb', 'season', 'pos', 'fuzz',
-        'skills', 'ovr', 'pot'
+        'stre', 'spd', 'jmp', 'endu', 'ins',
+        'dnk', 'ft', 'fg', 'tp', 'oiq', 'diq',
+        'drb', 'pss', 'reb', 'hgt', 'fuzz',
+        'ovr', 'pos', 'pot', 'season', 'skills'
       ];
       
       ratingFields.forEach(field => {
         if (player.ratings[0][field] !== undefined) {
-          normalized.ratings[0][field] = player.ratings[0][field];
+          // Handle empty strings for numeric fields
+          if (['stre', 'spd', 'jmp', 'endu', 'ins', 'dnk', 'ft', 'fg', 'tp', 
+               'oiq', 'diq', 'drb', 'pss', 'reb', 'hgt', 'fuzz', 'ovr', 
+               'pot', 'season'].includes(field) && 
+              player.ratings[0][field] === '') {
+            normalized.ratings[0][field] = null;
+          } else {
+            normalized.ratings[0][field] = player.ratings[0][field];
+          }
         }
       });
     }
@@ -41,13 +50,15 @@ function normalizePlayerToTemplate(player) {
     // Override/set specific ratings fields from other locations if not already set
     
     // Handle overall rating which could be at player.ovr, player.ratings[0].ovr, or player.draft.ovr
-    if (!normalized.ratings[0].ovr) {
-      normalized.ratings[0].ovr = player.ovr || player.draft?.ovr || '';
+    if (normalized.ratings[0].ovr === undefined) {
+      const ovr = player.ovr !== undefined ? player.ovr : (player.draft?.ovr !== undefined ? player.draft.ovr : null);
+      normalized.ratings[0].ovr = (ovr === '') ? null : ovr;
     }
     
     // Handle potential rating which could be at player.pot, player.ratings[0].pot, or player.draft.pot
-    if (!normalized.ratings[0].pot) {
-      normalized.ratings[0].pot = player.pot || player.draft?.pot || '';
+    if (normalized.ratings[0].pot === undefined) {
+      const pot = player.pot !== undefined ? player.pot : (player.draft?.pot !== undefined ? player.draft.pot : null);
+      normalized.ratings[0].pot = (pot === '') ? null : pot;
     }
     
     // Handle position in ratings which could be at player.pos, player.ratings[0].pos, or player.draft.pos
@@ -65,13 +76,19 @@ function normalizePlayerToTemplate(player) {
     // If draft object exists in the player, copy all fields
     if (player.draft) {
       const draftFields = [
-        'year', 'tid', 'originalTid', 'round', 'pick', 
+        'round', 'pick', 'tid', 'originalTid', 'year', 
         'skills', 'pot', 'ovr'
       ];
       
       draftFields.forEach(field => {
         if (player.draft[field] !== undefined) {
-          normalized.draft[field] = player.draft[field];
+          // For numeric fields, handle empty strings
+          if (['round', 'pick', 'tid', 'originalTid', 'year', 'pot', 'ovr'].includes(field) && 
+              player.draft[field] === '') {
+            normalized.draft[field] = null;
+          } else {
+            normalized.draft[field] = player.draft[field];
+          }
         }
       });
     }
@@ -83,7 +100,12 @@ function normalizePlayerToTemplate(player) {
       if (typeof player.born === 'object') {
         Object.keys(normalized.born).forEach(key => {
           if (player.born[key] !== undefined) {
-            normalized.born[key] = player.born[key];
+            // For year field, handle empty strings
+            if (key === 'year' && player.born[key] === '') {
+              normalized.born[key] = null;
+            } else {
+              normalized.born[key] = player.born[key];
+            }
           }
         });
       } else if (typeof player.born === 'string') {
@@ -94,22 +116,86 @@ function normalizePlayerToTemplate(player) {
     
     // ----- Handle face object fields -----
     
+    // Make sure all face object parts exist
+    if (!normalized.face) {
+      normalized.face = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE.face));
+    }
+    
+    // Ensure teamColors is an array with 3 elements
+    if (!Array.isArray(normalized.face.teamColors) || normalized.face.teamColors.length < 3) {
+      normalized.face.teamColors = ["", "", ""];
+    }
+    
     // If face object exists in the player, copy all fields recursively
     if (player.face) {
-      Object.keys(player.face).forEach(key => {
-        if (normalized.face[key]) {
-          if (typeof player.face[key] === 'object' && player.face[key] !== null) {
-            Object.keys(player.face[key]).forEach(subKey => {
-              if (normalized.face[key][subKey] !== undefined) {
-                normalized.face[key][subKey] = player.face[key][subKey];
-              }
-            });
-          } else {
-            normalized.face[key] = player.face[key];
+      // Handle fatness directly (numeric field)
+      if (player.face.fatness !== undefined) {
+        normalized.face.fatness = player.face.fatness === '' ? null : player.face.fatness;
+      } else {
+        normalized.face.fatness = null;
+      }
+      
+      // Handle teamColors array
+      if (Array.isArray(player.face.teamColors)) {
+        for (let i = 0; i < Math.min(player.face.teamColors.length, 3); i++) {
+          normalized.face.teamColors[i] = player.face.teamColors[i] || '';
+        }
+      }
+      
+      // Handle all nested face objects
+      const faceObjects = [
+        'hairBg', 'body', 'jersey', 'ear', 'head', 'eyeLine', 
+        'smileLine', 'miscLine', 'facialHair', 'eye', 'eyebrow', 
+        'hair', 'mouth', 'nose', 'glasses', 'accessories'
+      ];
+      
+      faceObjects.forEach(objName => {
+        if (player.face[objName] && typeof player.face[objName] === 'object') {
+          // Make sure the object exists in normalized
+          if (!normalized.face[objName]) {
+            normalized.face[objName] = {};
+          }
+          
+          // Copy all properties
+          Object.keys(player.face[objName]).forEach(prop => {
+            // For numeric properties, handle empty strings
+            const numericProps = ['size', 'angle', 'flip'];
+            if (numericProps.includes(prop) && player.face[objName][prop] === '') {
+              normalized.face[objName][prop] = null;
+            } else {
+              normalized.face[objName][prop] = player.face[objName][prop];
+            }
+          });
+          
+          // Make sure id property exists
+          if (normalized.face[objName].id === undefined) {
+            normalized.face[objName].id = '';
           }
         }
       });
     }
+    
+    // ----- Handle injury object -----
+    
+    if (player.injury && typeof player.injury === 'object') {
+      normalized.injury = {
+        type: player.injury.type || '',
+        gamesRemaining: player.injury.gamesRemaining === '' ? null : (player.injury.gamesRemaining ?? null)
+      };
+    } else {
+      normalized.injury = { type: '', gamesRemaining: null };
+    }
+    
+    // ----- Handle player numeric fields -----
+    
+    const numericFields = ['hgt', 'pid', 'tid', 'weight'];
+    numericFields.forEach(field => {
+      if (player[field] !== undefined) {
+        normalized[field] = player[field] === '' ? null : player[field];
+      } else {
+        normalized[field] = null;
+      }
+    });
   }
   function assignFields(templateObj, playerObj, currentPath = '') {
     // If playerObj is null or undefined, we can't extract anything
@@ -223,8 +309,7 @@ function normalizePlayerToTemplate(player) {
         }
       }
     }
-  }
-  // First attempt regular assignment
+  }  // First attempt regular assignment
   assignFields(normalized, player);
   
   // Then apply special field handling
@@ -233,14 +318,12 @@ function normalizePlayerToTemplate(player) {
   // Finally, do a direct field mapping for critical fields to ensure they're populated
   ensureEssentialFieldsPopulated();
   
-  return normalized;
-  
   // Function to ensure critical fields are populated
   function ensureEssentialFieldsPopulated() {
-    // Ensure required fields have values
+    // Ensure required string fields have values
     normalized.firstName = player.firstName || '';
     normalized.lastName = player.lastName || '';
-    normalized.pid = player.pid || '';
+    normalized.pid = player.pid !== undefined ? player.pid : null;
     normalized.pos = player.pos || player.ratings?.[0]?.pos || player.draft?.pos || '';
     
     // Ratings
@@ -249,10 +332,21 @@ function normalizePlayerToTemplate(player) {
     }
     
     // Make sure at least one rating exists
-    normalized.ratings[0].ovr = normalized.ratings[0].ovr || player.ovr || player.draft?.ovr || '';
-    normalized.ratings[0].pot = normalized.ratings[0].pot || player.pot || player.draft?.pot || '';
+    normalized.ratings[0].ovr = normalized.ratings[0].ovr !== undefined ? normalized.ratings[0].ovr : (player.ovr !== undefined ? player.ovr : (player.draft?.ovr !== undefined ? player.draft.ovr : null));
+    normalized.ratings[0].pot = normalized.ratings[0].pot !== undefined ? normalized.ratings[0].pot : (player.pot !== undefined ? player.pot : (player.draft?.pot !== undefined ? player.draft.pot : null));
     normalized.ratings[0].pos = normalized.ratings[0].pos || normalized.pos || '';
+    // Handle numeric fields in ratings
+    const ratingNumericFields = [
+      'hgt', 'stre', 'spd', 'jmp', 'endu', 'ins',
+      'dnk', 'ft', 'fg', 'tp', 'diq', 'oiq',
+      'drb', 'pss', 'reb', 'fuzz', 'season'
+    ];
     
+    ratingNumericFields.forEach(field => {
+      if (normalized.ratings[0][field] === undefined || normalized.ratings[0][field] === '') {
+        normalized.ratings[0][field] = null;
+      }
+    });    
     // If no skills array, initialize it
     if (!Array.isArray(normalized.ratings[0].skills)) {
       normalized.ratings[0].skills = [];
@@ -260,23 +354,124 @@ function normalizePlayerToTemplate(player) {
     
     // Double-check born structure
     if (!normalized.born || typeof normalized.born !== 'object') {
-      normalized.born = { year: '', loc: '' };
+      normalized.born = { year: null, loc: '' };
+    } else {
+      if (normalized.born.year === undefined || normalized.born.year === '') {
+        normalized.born.year = null;
+      }
+      if (normalized.born.loc === undefined) {
+        normalized.born.loc = '';
+      }
     }
     
     // Ensure draft structure
     if (!normalized.draft || typeof normalized.draft !== 'object') {
       normalized.draft = { 
-        year: '', tid: -1, originalTid: -1, 
-        round: 0, pick: 0, skills: [], pot: '', ovr: '' 
+        year: null, tid: null, originalTid: null, 
+        round: null, pick: null, skills: [], pot: null, ovr: null 
       };
+    } else {
+      // Set numeric fields to null if undefined or empty
+      const draftNumericFields = ['year', 'tid', 'originalTid', 'round', 'pick', 'pot', 'ovr'];
+      draftNumericFields.forEach(field => {
+        if (normalized.draft[field] === undefined || normalized.draft[field] === '') {
+          normalized.draft[field] = null;
+        }
+      });
     }
     
     // Copy over values to draft if they exist elsewhere
-    normalized.draft.pot = normalized.draft.pot || normalized.ratings[0].pot || player.pot || '';
-    normalized.draft.ovr = normalized.draft.ovr || normalized.ratings[0].ovr || player.ovr || '';
+    if (normalized.draft.pot === null && normalized.ratings[0].pot !== null) {
+      normalized.draft.pot = normalized.ratings[0].pot;
+    }
+    if (normalized.draft.ovr === null && normalized.ratings[0].ovr !== null) {
+      normalized.draft.ovr = normalized.ratings[0].ovr;
+    }
     
-    console.log('Normalized player structure:', JSON.stringify(normalized, null, 2));
-  }
+    // Set main player numeric fields
+    const playerNumericFields = ['hgt', 'pid', 'tid', 'weight'];
+    playerNumericFields.forEach(field => {
+      if (normalized[field] === undefined || normalized[field] === '') {
+        normalized[field] = null;
+      }
+    });
+    
+    // Ensure injury has correct structure
+    if (!normalized.injury || typeof normalized.injury !== 'object') {
+      normalized.injury = { type: '', gamesRemaining: null };
+    } else if (normalized.injury.gamesRemaining === undefined || normalized.injury.gamesRemaining === '') {
+      normalized.injury.gamesRemaining = null;
+    }
+    
+    // Double check face object structure
+    if (!normalized.face || typeof normalized.face !== 'object') {
+      normalized.face = JSON.parse(JSON.stringify(DEFAULT_PLAYER_TEMPLATE.face));
+    } else {
+      // Ensure teamColors is properly structured
+      if (!Array.isArray(normalized.face.teamColors) || normalized.face.teamColors.length < 3) {
+        normalized.face.teamColors = ["", "", ""];
+      }
+      
+      // Ensure all numeric face properties are properly set
+      const faceObjectsWithNumericProps = {
+        body: ['size'],
+        ear: ['size'],
+        smileLine: ['size'],
+        eye: ['angle'],
+        eyebrow: ['angle'],
+        hair: ['flip'],
+        mouth: ['flip'],
+        nose: ['flip', 'size']
+      };
+      
+      // Set fatness property (direct numeric property)
+      if (normalized.face.fatness === undefined || normalized.face.fatness === '') {
+        normalized.face.fatness = null;
+      }
+      
+      // Handle all nested face objects
+      Object.keys(faceObjectsWithNumericProps).forEach(objName => {
+        if (!normalized.face[objName] || typeof normalized.face[objName] !== 'object') {
+          normalized.face[objName] = {};
+        }
+        
+        // Set string properties if undefined
+        if (normalized.face[objName].id === undefined) {
+          normalized.face[objName].id = '';
+        }
+        
+        // Set numeric properties if needed
+        faceObjectsWithNumericProps[objName].forEach(prop => {
+          if (normalized.face[objName][prop] === undefined || normalized.face[objName][prop] === '') {
+            normalized.face[objName][prop] = null;
+          }
+        });
+        
+        // Set color properties if needed
+        if (objName === 'body' || objName === 'hair') {
+          if (normalized.face[objName].color === undefined) {
+            normalized.face[objName].color = '';
+          }
+        }
+      });
+      
+      // Ensure other face objects exist with id property
+      const simpleIdObjects = ['hairBg', 'jersey', 'head', 'eyeLine', 'miscLine', 'facialHair', 'glasses', 'accessories'];
+      simpleIdObjects.forEach(objName => {
+        if (!normalized.face[objName] || typeof normalized.face[objName] !== 'object') {
+          normalized.face[objName] = { id: '' };
+        } else if (normalized.face[objName].id === undefined) {
+          normalized.face[objName].id = '';
+        }
+      });
+    }
+    
+    console.log('Normalized player structure:', JSON.stringify(normalized, null, 2));  }
+  
+  // Log the result
+  console.log('Normalized player structure:', JSON.stringify(normalized, null, 2));
+  
+  return normalized;
 }
 
 class PlayerManager {
