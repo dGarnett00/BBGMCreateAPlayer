@@ -481,3 +481,9 @@ h1, h2 {
   color: #4fc3f7;
 }
 
+/* Copy JSON button styling */
+#copyJsonBtn {
+  margin-top: 0.5em;
+  float: right;
+}
+
