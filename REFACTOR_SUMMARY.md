@@ -52,18 +52,21 @@ Successfully completed a comprehensive refactor of the monolithic `app.js` file 
 ## ✅ Refactoring Achievements
 
 ### 🔧 **Code Organization**
+
 - **Split 1086+ lines** into 7 focused modules
 - **Single Responsibility Principle** - each module has one clear purpose
 - **Dependency Injection** - modules receive dependencies rather than creating them
 - **Clean separation** of concerns between data, UI, and business logic
 
 ### 🎯 **Improved Maintainability**
+
 - **Modular architecture** makes testing and debugging easier
 - **Event-driven communication** reduces tight coupling
 - **Consistent code formatting** throughout all modules
 - **Clear naming conventions** and documentation
 
 ### 🧹 **Code Quality Improvements**
+
 - **Eliminated duplicate variable declarations**
 - **Standardized indentation** to 2 spaces throughout
 - **Removed unnecessary quotes** from object properties
@@ -71,6 +74,7 @@ Successfully completed a comprehensive refactor of the monolithic `app.js` file 
 - **Proper error handling** and validation
 
 ### 🔄 **Enhanced Functionality**
+
 - **Robust state management** with undo/redo capabilities
 - **Event-driven architecture** for better component communication
 - **Improved error handling** and user feedback
@@ -80,8 +84,9 @@ Successfully completed a comprehensive refactor of the monolithic `app.js` file 
 
 ## 📊 **Architecture Benefits**
 
-### Before Refactor:
-```
+### Before Refactor
+
+```text
 app.js (1086+ lines)
 ├── Mixed concerns (UI, data, logic)
 ├── Global variables everywhere
@@ -90,8 +95,9 @@ app.js (1086+ lines)
 └── Inconsistent code formatting
 ```
 
-### After Refactor:
-```
+### After Refactor
+
+```text
 Modular Architecture
 ├── constants.js (config & data)
 ├── eventBus.js (communication)
@@ -123,6 +129,7 @@ Modular Architecture
 ## 🚀 **Future Scalability**
 
 The new architecture supports:
+
 - Easy addition of new features
 - Simple testing implementation
 - Better debugging capabilities
