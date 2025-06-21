@@ -454,3 +454,30 @@ h1, h2 {
     background: #005fa3;
 }
 
+/* JSON Output (Export Preview) Styling */
+#outputJson {
+  background: #181a1b;
+  color: #e0e6ed;
+  border-radius: 8px;
+  border: 1px solid #26334d;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+  font-size: 1.08em;
+  padding: 1.2em 1em;
+  margin-bottom: 1em;
+  max-height: 420px;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: pre;
+  box-shadow: 0 1px 6px rgba(25, 118, 210, 0.07);
+  transition: box-shadow 0.2s;
+}
+
+#outputJson:focus {
+  outline: 2px solid #90caf9;
+  box-shadow: 0 0 0 2px #1976d2;
+}
+
+.details-margin-top summary {
+  color: #4fc3f7;
+}
+

@@ -1,12 +1,12 @@
 # BBGM Draft Prospect Generator
 
-A web application for generating and managing draft prospects for Basketball GM (BBGM) simulation game.
+A web application for generating and managing draft prospects for the Basketball GM (BBGM) simulation game.
 
 ## Features
 
 - Create individual draft prospects with detailed player attributes
 - Import and edit existing draft classes from JSON files
-- Generate random players from draft templates with advanced 5-player mixing algorithm
+- Generate random players from draft templates using an advanced 5-player mixing algorithm
 - Bulk player generation capabilities
 - Modern, responsive user interface
 - Export functionality for use in BBGM
@@ -14,7 +14,7 @@ A web application for generating and managing draft prospects for Basketball GM 
 
 ## File Structure
 
-```
+```plaintext
 ├── main.html              # Main application interface
 ├── scripts/
 │   ├── app.js             # Application entry point
@@ -31,7 +31,7 @@ A web application for generating and managing draft prospects for Basketball GM 
 │   └── playerUtils.js     # Utility functions
 ├── styles/
 │   └── style.css          # Application styling
-└── Drafts/               # Sample draft data files
+└── Drafts/                # Sample draft data files
     ├── 25DRAFT.json
     ├── 26draft.json
     ├── 27DRAFT.json
@@ -40,10 +40,10 @@ A web application for generating and managing draft prospects for Basketball GM 
 
 ## Usage
 
-1. Open `main.html` in a web browser
-2. Use the form to create new players or import existing draft classes
-3. Generate random players or edit existing ones
-4. Export your completed draft class for use in BBGM
+1. Open `main.html` in a web browser.
+2. Use the form to create new players or import existing draft classes.
+3. Generate random players or edit existing ones.
+4. Export your completed draft class for use in BBGM.
 
 ## Technologies Used
 
